@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "364589936912",
+    "firebase_url": "https://sweaden-7806e.firebaseio.com",
+    "project_id": "sweaden-7806e",
+    "storage_bucket": "sweaden-7806e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364589936912:android:b733c65e9290a3557e3595",
+        "android_client_info": {
+          "package_name": "com.example.sweaden_old_new_version"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgA69EYJLS6sCfPIv9_r6tM2s_HerW8HQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364589936912:android:31fcf4de4a25c4757e3595",
+        "android_client_info": {
+          "package_name": "com.viamatica.instantsure"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgA69EYJLS6sCfPIv9_r6tM2s_HerW8HQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364589936912:android:04e8b236d581a9447e3595",
+        "android_client_info": {
+          "package_name": "com.viamatica.sweadenapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgA69EYJLS6sCfPIv9_r6tM2s_HerW8HQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

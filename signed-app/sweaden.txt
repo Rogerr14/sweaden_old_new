@@ -1,0 +1,10 @@
+com.viamatica.instantsure
+
+alias: sweadenBroker
+password: Sw3@d3nBr0k3n
+
+
+----------------------------
+
+alias: key_sweaden
+password: sweaden_broker
