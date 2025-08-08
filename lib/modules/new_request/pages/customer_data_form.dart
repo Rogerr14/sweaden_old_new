@@ -1,4 +1,3 @@
-
 import 'package:animate_do/animate_do.dart';
 // import 'package:awesome_select/awesome_select.dart';
 import 'package:flutter_awesome_select_clone/flutter_awesome_select.dart';
@@ -57,7 +56,7 @@ class _CustomerDataFormState extends State<CustomerDataForm>
   @override
   void initState() {
     fp = Provider.of<FunctionalProvider>(context, listen: false);
-    
+
     identificationsList = widget.identificationList
         .map((e) => S2Choice(
             value: e.idEstadoSweaden.toString(),
@@ -82,10 +81,10 @@ class _CustomerDataFormState extends State<CustomerDataForm>
   @override
   Widget build(BuildContext context) {
     //Helper.logger.w('selectedDocumentTypeValue: $selectedDocumentTypeValue');
-    //Helper.logger.w('isValidDocument: $isValidDocument'); 
-    //Helper.logger.w('existError: $existError'); 
-    //Helper.logger.w('isValidPhone: $isValidPhone'); 
-    
+    //Helper.logger.w('isValidDocument: $isValidDocument');
+    //Helper.logger.w('existError: $existError');
+    //Helper.logger.w('isValidPhone: $isValidPhone');
+
     super.build(context);
     return SingleChildScrollView(
       controller: scrollController,
@@ -225,7 +224,8 @@ class _CustomerDataFormState extends State<CustomerDataForm>
             },
             style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)), backgroundColor: AppConfig.appThemeConfig.primaryColor),
+                    borderRadius: BorderRadius.circular(15)),
+                backgroundColor: AppConfig.appThemeConfig.primaryColor),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
@@ -249,7 +249,8 @@ class _CustomerDataFormState extends State<CustomerDataForm>
             identificacion: documentTypeController.text.trim(),
             nombres: (isNatural) ? nameController.text.trim() : null,
             apellidos: (isNatural) ? lastNameController.text.trim() : null,
-            razonSocial: (!isNatural) ? businessNameController.text.trim() : null,
+            razonSocial:
+                (!isNatural) ? businessNameController.text.trim() : null,
             telefono: phoneController.text.trim(),
             direccion: addressController.text.trim(),
             latitud: selectedCoords?.latitude.toString(),
@@ -272,13 +273,15 @@ class _CustomerDataFormState extends State<CustomerDataForm>
     selectedCoords = null;
   }
 
-  _loadClientData()async {
-    final response = await RequestReviewService().getDataClient(context, documentTypeController.text.trim()); 
+  _loadClientData() async {
+    final response = await RequestReviewService()
+        .getDataClient(context, documentTypeController.text.trim());
     setState(() {
-        existError = response.error;
+      existError = response.error;
     });
-    if(!existError && response.data!=null){
+    if (!existError && response.data != null) {
       fillFields(response.data!);
+      _checkIfFieldsAreComplete();
     }
   }
 
@@ -324,17 +327,42 @@ class _CustomerDataFormState extends State<CustomerDataForm>
 
   fillPersonData(DatosCliente dc) {
     nameController.text = dc.persona.nombre1;
-    lastNameController.text = dc.persona.apellido1;
-    phoneController.text = dc.persona.telefonoCelular ?? "";
-    addressController.text = dc.persona.direccionDomicilio ?? (dc.persona.direcciones ?? "" );
+    lastNameController.text = dc.persona.apellido1 ?? '';
+    phoneController.text = (dc.persona.telefonoCelular != null &&
+            dc.persona.telefonoCelular!.isNotEmpty &&
+            dc.persona.telefonoCelular!.length == 10)
+        ? dc.persona.telefonoCelular?.substring(0, 10) ?? ''
+        : "";
+    addressController.text =
+        dc.persona.direccionDomicilio ?? (dc.persona.direcciones ?? "");
     //addressController.text = dc.persona.direccionDomicilio ?? "";
+    if (
+        phoneController.text.isNotEmpty &&
+        phoneController.text.length == 10) {
+      isValidPhone = true;
+    } else {
+      isValidPhone = false;
+    }
+    _checkIfFieldsAreComplete();
   }
 
   fillBusinessData(DatosCliente dc) {
     businessNameController.text = dc.persona.nombre ?? "";
-    phoneController.text = dc.persona.telefonoCelular ?? "";
-    addressController.text = dc.persona.direccionDomicilio ?? (dc.persona.direcciones ?? "" );
+    phoneController.text =  (dc.persona.telefonoCelular != null &&
+            dc.persona.telefonoCelular!.isNotEmpty &&
+            dc.persona.telefonoCelular!.length == 10)
+        ? dc.persona.telefonoCelular?.substring(0, 10) ?? ''
+        : "";
+        addressController.text =
+        dc.persona.direccionDomicilio ?? (dc.persona.direcciones ?? "");
     //addressController.text = dc.persona.direccionDomicilio ?? "";
+    if (
+        phoneController.text.isNotEmpty &&
+        phoneController.text.length == 10) {
+      isValidPhone = true;
+    } else {
+      isValidPhone = false;
+    }
   }
 
   //? Reusable TextField's
@@ -346,18 +374,20 @@ class _CustomerDataFormState extends State<CustomerDataForm>
         return Focus(
           onFocusChange: (hasFocus) {
             if (!hasFocus) {
-              if(!fp.offline){
-                if (isValidDocument != null && isValidDocument == true &&  tmpIdentificationCons != documentTypeController.text) {
+              if (!fp.offline) {
+                if (isValidDocument != null &&
+                    isValidDocument == true &&
+                    tmpIdentificationCons != documentTypeController.text) {
                   tmpIdentificationCons = documentTypeController.text;
                   _loadClientData();
                 }
-              }else{
-                Helper.logger.i('documentTypeController.text: ${documentTypeController.text}');
-                isValidDocument = Helper().identificationValidator(documentTypeController.text, 'ci');
+              } else {
+                Helper.logger.i(
+                    'documentTypeController.text: ${documentTypeController.text}');
+                isValidDocument = Helper()
+                    .identificationValidator(documentTypeController.text, 'ci');
                 existError = !isValidDocument!;
-                setState(() {
-                  
-                });
+                setState(() {});
                 _checkIfFieldsAreComplete();
                 //  if (isValidDocument != null && isValidDocument == true &&  tmpIdentificationCons != documentTypeController.text) {
                 //     tmpIdentificationCons = documentTypeController.text;
@@ -365,31 +395,32 @@ class _CustomerDataFormState extends State<CustomerDataForm>
                 //     setState(() {});
                 //   //_loadClientData();
                 // }
-               
               }
             }
           },
           child: TextFieldWidget(
             label: 'Ingrese el número de cédula',
             controller: documentTypeController,
-            suffixIcon: !fp.offline ? ( (isValidDocument != null && isValidDocument == true)
-                ? TextButton(
-                    style: ButtonStyle(
-                        shape:
-                            WidgetStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ))),
-                    onPressed: () {
-                      Helper.dismissKeyboard(context);
-                      _loadClientData();
-                    },
-                    child: const Icon(
-                      Icons.search_rounded,
-                      color: Colors.grey,
-                      size: 30.0,
-                    ),
-                  ) : null)
+            suffixIcon: !fp.offline
+                ? ((isValidDocument != null && isValidDocument == true)
+                    ? TextButton(
+                        style: ButtonStyle(
+                            shape:
+                                WidgetStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ))),
+                        onPressed: () {
+                          Helper.dismissKeyboard(context);
+                          _loadClientData();
+                        },
+                        child: const Icon(
+                          Icons.search_rounded,
+                          color: Colors.grey,
+                          size: 30.0,
+                        ),
+                      )
+                    : null)
                 : null,
             maxLength: 10,
             textInputType: TextInputType.phone,
@@ -410,21 +441,24 @@ class _CustomerDataFormState extends State<CustomerDataForm>
         return Focus(
           onFocusChange: (hasFocus) {
             if (!hasFocus) {
-              if(!fp.offline){
-                if (tmpIdentificationCons.trim() != documentTypeController.text.trim()) {
+              if (!fp.offline) {
+                if (tmpIdentificationCons.trim() !=
+                    documentTypeController.text.trim()) {
                   tmpIdentificationCons = documentTypeController.text.trim();
-                  documentTypeController.text.trim() != '' ?     _loadClientData() : null;
+                  documentTypeController.text.trim() != ''
+                      ? _loadClientData()
+                      : null;
                 }
-              }else{
-                if(documentTypeController.text.trim().isNotEmpty){
+              } else {
+                if (documentTypeController.text.trim().isNotEmpty) {
                   isValidDocument = true;
                   existError = false;
-                }else{
+                } else {
                   isValidDocument = false;
                   existError = true;
                 }
                 setState(() {});
-                 _checkIfFieldsAreComplete();
+                _checkIfFieldsAreComplete();
               }
             }
           },
@@ -433,24 +467,26 @@ class _CustomerDataFormState extends State<CustomerDataForm>
             controller: documentTypeController,
             isValid: isValidDocument,
             textInputType: TextInputType.text,
-            suffixIcon: !fp.offline ? (documentTypeController.text.trim().isNotEmpty)
-                ? TextButton(
-                    style: ButtonStyle(
-                        shape:
-                            WidgetStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ))),
-                    onPressed: () {
-                      Helper.dismissKeyboard(context);
-                      _loadClientData();
-                    },
-                    child: const Icon(
-                      Icons.search_rounded,
-                      color: Colors.grey,
-                      size: 30.0,
-                    ),
-                  ) : null
+            suffixIcon: !fp.offline
+                ? (documentTypeController.text.trim().isNotEmpty)
+                    ? TextButton(
+                        style: ButtonStyle(
+                            shape:
+                                WidgetStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ))),
+                        onPressed: () {
+                          Helper.dismissKeyboard(context);
+                          _loadClientData();
+                        },
+                        child: const Icon(
+                          Icons.search_rounded,
+                          color: Colors.grey,
+                          size: 30.0,
+                        ),
+                      )
+                    : null
                 : null,
             maxLength: 20,
             onChanged: (value) {
@@ -468,42 +504,51 @@ class _CustomerDataFormState extends State<CustomerDataForm>
         return Focus(
           onFocusChange: (hasFocus) {
             if (!hasFocus) {
-              if(!fp.offline){
-                if (isValidDocument != null && isValidDocument == true && tmpIdentificationCons != documentTypeController.text) {
+              if (!fp.offline) {
+                if (isValidDocument != null &&
+                    isValidDocument == true &&
+                    tmpIdentificationCons != documentTypeController.text) {
                   tmpIdentificationCons = documentTypeController.text;
                   _loadClientData();
                 }
-              }else{
-              final rucType = Helper().identificationValidator(documentTypeController.text, 'ruc');
-              Helper.logger.e('rucType: $rucType');
-              isValidDocument = rucType[0];
-              isNatural = rucType[1];
-              if (documentTypeController.text.length == 13 && !rucType[0]) {
-                Helper.dismissKeyboard(context);
-                fp.showAlert(
-                  content: AlertGenericError(
-                  message: "Este RUC no fue detectado como valido, si esta de acuerdo continue con los datos",
-                  messageButton: "Aceptar",
-                  onPress: () {
-                    //Navigator.pop(context);
-                    isValidDocument = true;
-                    if (isValidDocument != null &&  isValidDocument == true && tmpIdentificationCons != documentTypeController.text) {
-                      //tmpIdentificationCons = documentTypeController.text;
-                      setState(() { existError = false; });
-                      _checkIfFieldsAreComplete();
-                      fp.dismissAlert();
-                    } else {
-                      fp.dismissAlert();
-                    }
-                  },
-                ));
-              }else{
+              } else {
+                final rucType = Helper().identificationValidator(
+                    documentTypeController.text, 'ruc');
+                Helper.logger.e('rucType: $rucType');
                 isValidDocument = rucType[0];
-                setState(() {
-                  existError = false;
-                });
-                _checkIfFieldsAreComplete();
-              }
+                isNatural = rucType[1];
+                if (documentTypeController.text.length == 13 && !rucType[0]) {
+                  Helper.dismissKeyboard(context);
+                  fp.showAlert(
+                      content: AlertGenericError(
+                    message:
+                        "Este RUC no fue detectado como valido, si esta de acuerdo continue con los datos",
+                    messageButton: "Aceptar",
+                    onPress: () {
+                      //Navigator.pop(context);
+                      isValidDocument = true;
+                      if (isValidDocument != null &&
+                          isValidDocument == true &&
+                          tmpIdentificationCons !=
+                              documentTypeController.text) {
+                        //tmpIdentificationCons = documentTypeController.text;
+                        setState(() {
+                          existError = false;
+                        });
+                        _checkIfFieldsAreComplete();
+                        fp.dismissAlert();
+                      } else {
+                        fp.dismissAlert();
+                      }
+                    },
+                  ));
+                } else {
+                  isValidDocument = rucType[0];
+                  setState(() {
+                    existError = false;
+                  });
+                  _checkIfFieldsAreComplete();
+                }
                 // Helper.logger.i('documentTypeController.text: ${documentTypeController.text}');
                 // final rucType = Helper().identificationValidator(documentTypeController.text, 'ruc');
                 // isValidDocument = rucType[0];
@@ -512,7 +557,6 @@ class _CustomerDataFormState extends State<CustomerDataForm>
 
                 // _checkIfFieldsAreComplete();
               }
-              
             }
           },
           child: TextFieldWidget(
@@ -524,24 +568,26 @@ class _CustomerDataFormState extends State<CustomerDataForm>
               FilteringTextInputFormatter.allow(RegExp('[0-9]'))
             ],
             isValid: isValidDocument,
-            suffixIcon: !fp.offline ?   (isValidDocument != null && isValidDocument == true)
-                ? TextButton(
-                    style: ButtonStyle(
-                        shape:
-                            WidgetStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ))),
-                    onPressed: () {
-                      Helper.dismissKeyboard(context);
-                      _loadClientData();
-                    },
-                    child: const Icon(
-                      Icons.search_rounded,
-                      color: Colors.grey,
-                      size: 30.0,
-                    ),
-                  ) : null
+            suffixIcon: !fp.offline
+                ? (isValidDocument != null && isValidDocument == true)
+                    ? TextButton(
+                        style: ButtonStyle(
+                            shape:
+                                WidgetStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ))),
+                        onPressed: () {
+                          Helper.dismissKeyboard(context);
+                          _loadClientData();
+                        },
+                        child: const Icon(
+                          Icons.search_rounded,
+                          color: Colors.grey,
+                          size: 30.0,
+                        ),
+                      )
+                    : null
                 : null,
             onChanged: (value) {
               //? En caso de Ruc este nos devuelve una List<bool>
@@ -553,8 +599,9 @@ class _CustomerDataFormState extends State<CustomerDataForm>
               if (documentTypeController.text.length == 13 && !rucType[0]) {
                 Helper.dismissKeyboard(context);
                 fp.showAlert(
-                  content: AlertGenericError(
-                  message: "Este RUC no fue detectado como valido, si esta de acuerdo continue con los datos",
+                    content: AlertGenericError(
+                  message:
+                      "Este RUC no fue detectado como valido, si esta de acuerdo continue con los datos",
                   messageButton: "Aceptar",
                   onPress: () {
                     //Navigator.pop(context);
@@ -588,7 +635,7 @@ class _CustomerDataFormState extends State<CustomerDataForm>
           label: 'Nombres',
           controller: nameController,
           inputFormatter: [
-            FilteringTextInputFormatter.allow(Helper.textRegExp), 
+            FilteringTextInputFormatter.allow(Helper.textRegExp),
           ],
           onChanged: (value) {
             _checkIfFieldsAreComplete();
@@ -601,7 +648,7 @@ class _CustomerDataFormState extends State<CustomerDataForm>
           label: 'Apellidos',
           controller: lastNameController,
           inputFormatter: [
-            FilteringTextInputFormatter.allow(Helper.textRegExp), 
+            FilteringTextInputFormatter.allow(Helper.textRegExp),
           ],
           onChanged: (value) {
             _checkIfFieldsAreComplete();
@@ -772,7 +819,7 @@ class _CustomerDataFormState extends State<CustomerDataForm>
             businessNameController.text.trim().isNotEmpty &&
             (isValidPhone != null && isValidPhone!) &&
             addressController.text.trim().isNotEmpty) {
-            // selectedCoords != null) {
+          // selectedCoords != null) {
           if (!formCompleted) {
             Future.delayed(const Duration(seconds: 1), () {
               scrollController.animateTo(

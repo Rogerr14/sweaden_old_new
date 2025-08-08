@@ -45,7 +45,8 @@ class AlertLoseProcess extends StatelessWidget {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)), backgroundColor: AppConfig.appThemeConfig.primaryColor),
+                            borderRadius: BorderRadius.circular(10)),
+                        backgroundColor: AppConfig.appThemeConfig.primaryColor),
                     onPressed: () async {
                       final fp = Provider.of<FunctionalProvider>(context,
                           listen: false);
@@ -61,7 +62,9 @@ class AlertLoseProcess extends StatelessWidget {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)), backgroundColor: AppConfig.appThemeConfig.secondaryColor),
+                            borderRadius: BorderRadius.circular(10)),
+                        backgroundColor:
+                            AppConfig.appThemeConfig.secondaryColor),
                     onPressed: () {
                       final fp = Provider.of<FunctionalProvider>(context,
                           listen: false);
@@ -94,28 +97,31 @@ class AlertLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      type: MaterialType.transparency,
-      child: SizedBox(
-        height: 180,
-        width: 240,
-        child: Stack(
-          alignment: Alignment.topCenter,
-          children: [
-            ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image(
-                    image: AssetImage(AppConfig.appThemeConfig.loadingGifPath),
-                    fit: BoxFit.fill)),
-            Positioned(
-                bottom: 0,
-                child: Text(title ?? 'Cargando...',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    )))
-          ],
+    return PopScope(
+      canPop: false,
+      child: Material(
+        type: MaterialType.transparency,
+        child: SizedBox(
+          height: 180,
+          width: 240,
+          child: Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image(
+                      image: AssetImage(AppConfig.appThemeConfig.loadingGifPath),
+                      fit: BoxFit.fill)),
+              Positioned(
+                  bottom: 0,
+                  child: Text(title ?? 'Cargando...',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      )))
+            ],
+          ),
         ),
       ),
     );
@@ -173,7 +179,8 @@ class AlertOutdatedApplication extends StatelessWidget {
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)), backgroundColor: AppConfig.appThemeConfig.secondaryColor),
+                        borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: AppConfig.appThemeConfig.secondaryColor),
                 onPressed: () async {
                   final Uri _urlAndroid = Uri.parse(urlAndroid);
                   final Uri _urliOS = Uri.parse(urliOS);
@@ -235,7 +242,8 @@ class AlertIncompleteFields extends StatelessWidget {
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)), backgroundColor: AppConfig.appThemeConfig.secondaryColor),
+                        borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: AppConfig.appThemeConfig.secondaryColor),
                 onPressed: () async {
                   fp.dismissAlert();
                 },
@@ -291,7 +299,9 @@ class AlertGenericError extends StatelessWidget {
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)), backgroundColor: AppConfig.appThemeConfig.secondaryColor),
+                            borderRadius: BorderRadius.circular(12)),
+                        backgroundColor:
+                            AppConfig.appThemeConfig.secondaryColor),
                     onPressed: (onPress != null)
                         ? onPress
                         : () async {
@@ -335,7 +345,8 @@ class AlertLogOut extends StatelessWidget {
                 Expanded(
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: AppConfig.appThemeConfig.primaryColor),
+                            backgroundColor:
+                                AppConfig.appThemeConfig.primaryColor),
                         onPressed: () async {
                           // fp.dismissAlert();
                           // Future.delayed(const Duration(milliseconds: 800),
@@ -351,11 +362,13 @@ class AlertLogOut extends StatelessWidget {
                             //HomePage.positionStream!.pause();
                             HomePage.positionStream = null;
                           }
+                          fp.dismissAlert();
                           fp.setSession(false);
                           //HomePage.timer.cancel();
                           //fp.setLoggedIn(false);
                           Helper.stopBackgroundService();
                           UserDataStorage().removeUserData();
+                          UserDataStorage().activeBackgroundService(true);
                           Navigator.pushReplacement(
                               context,
                               Helper.navigationFadeIn(
@@ -371,7 +384,8 @@ class AlertLogOut extends StatelessWidget {
                 ),
                 Expanded(
                     child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey),
                         onPressed: () {
                           fp.dismissAlert();
                         },
@@ -433,7 +447,8 @@ class AlertNoLocationSelectec extends StatelessWidget {
                   Expanded(
                       child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: AppConfig.appThemeConfig.primaryColor),
+                              backgroundColor:
+                                  AppConfig.appThemeConfig.primaryColor),
                           onPressed: () async {
                             fp.dismissAlert(summoner: 'google-map');
                           },
@@ -446,7 +461,8 @@ class AlertNoLocationSelectec extends StatelessWidget {
                   ),
                   Expanded(
                       child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey),
                           onPressed: () {
                             fp.dismissAlert(summoner: 'google-map');
                             fp.buttonMapEnable = true;
@@ -514,7 +530,9 @@ class AlertSuccess extends StatelessWidget {
                   ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)), backgroundColor: AppConfig.appThemeConfig.secondaryColor),
+                              borderRadius: BorderRadius.circular(12)),
+                          backgroundColor:
+                              AppConfig.appThemeConfig.secondaryColor),
                       onPressed: (onPress != null)
                           ? onPress
                           : () async {
@@ -836,8 +854,8 @@ class _AlertResendMediaState extends State<AlertResendMedia> {
                                 if (!response.error) {
                                   updateInspectionStatus(
                                       item.idArchiveType, 'exito');
-                                      OfflineStorage()
-                                  .setMediaStatus(Helper.mediaStatus);
+                                  OfflineStorage()
+                                      .setMediaStatus(Helper.mediaStatus);
                                   fp.setLoadingInspection(false);
                                   //mediaStatus.any((media) => media.idArchiveType == item.idArchiveType) ?  updateInspectionStatus(item.idArchiveType, 'exito') : mediaStatus.add(MediaResponse(idSolicitud: widget.idRequest, status: 'exito', idArchiveType: item.idArchiveType));
                                   //setState(() {});
@@ -846,8 +864,8 @@ class _AlertResendMediaState extends State<AlertResendMedia> {
                                 } else {
                                   updateInspectionStatus(
                                       item.idArchiveType, 'error');
-                                      OfflineStorage()
-                                  .setMediaStatus(Helper.mediaStatus);
+                                  OfflineStorage()
+                                      .setMediaStatus(Helper.mediaStatus);
                                   //fp.setLoadingInspection(false);
                                   //mediaStatus.any((media) => media.idArchiveType == item.idArchiveType) ?  updateInspectionStatus(item.idArchiveType, 'error') : mediaStatus.add(MediaResponse(idSolicitud: widget.idRequest, status: 'error', idArchiveType: item.idArchiveType));
                                   //setState(() {});
@@ -857,8 +875,8 @@ class _AlertResendMediaState extends State<AlertResendMedia> {
                                       const Duration(seconds: 1), () {
                                     updateInspectionStatus(
                                         item.idArchiveType, 'upload');
-                                        OfflineStorage()
-                                  .setMediaStatus(Helper.mediaStatus);
+                                    OfflineStorage()
+                                        .setMediaStatus(Helper.mediaStatus);
                                     fp.setLoadingInspection(false);
                                     //controll.reset();
                                   });
@@ -874,8 +892,8 @@ class _AlertResendMediaState extends State<AlertResendMedia> {
                               } on Exception catch (e, s) {
                                 updateInspectionStatus(
                                     item.idArchiveType, 'error');
-                                    OfflineStorage()
-                                  .setMediaStatus(Helper.mediaStatus);
+                                OfflineStorage()
+                                    .setMediaStatus(Helper.mediaStatus);
                                 fp.setLoadingInspection(false);
                                 const snackBar = SnackBar(
                                     content: Text(
@@ -953,8 +971,7 @@ class _AlertResendMediaState extends State<AlertResendMedia> {
                                     idSolicitud: widget.idRequest,
                                     status: 'cargando',
                                     idArchiveType: e.idArchiveType));
-                            OfflineStorage()
-                                  .setMediaStatus(Helper.mediaStatus);
+                            OfflineStorage().setMediaStatus(Helper.mediaStatus);
                             setState(() {});
 
                             final response = await MediaService().uploadMedia(
@@ -987,8 +1004,8 @@ class _AlertResendMediaState extends State<AlertResendMedia> {
                                 fp.setLoadingInspection(false);
                                 updateInspectionStatus(
                                     e.idArchiveType, 'upload');
-                                    OfflineStorage()
-                                  .setMediaStatus(Helper.mediaStatus);
+                                OfflineStorage()
+                                    .setMediaStatus(Helper.mediaStatus);
                               });
                             }
 
@@ -1034,7 +1051,8 @@ class _AlertResendMediaState extends State<AlertResendMedia> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)), backgroundColor: colorButton),
+                  borderRadius: BorderRadius.circular(10)),
+              backgroundColor: colorButton),
           onPressed: onPressed,
           child: Text(nameButton),
         ),
@@ -1244,7 +1262,9 @@ class AlertConfirm extends StatelessWidget {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)), backgroundColor: AppConfig.appThemeConfig.secondaryColor),
+                                borderRadius: BorderRadius.circular(10)),
+                            backgroundColor:
+                                AppConfig.appThemeConfig.secondaryColor),
                         onPressed: (cancel != null)
                             ? cancel
                             : () async {
@@ -1260,7 +1280,9 @@ class AlertConfirm extends StatelessWidget {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)), backgroundColor: AppConfig.appThemeConfig.primaryColor),
+                                borderRadius: BorderRadius.circular(10)),
+                            backgroundColor:
+                                AppConfig.appThemeConfig.primaryColor),
                         onPressed: confirm,
                         // onPressed: formCompleted
                         //     ? () {
@@ -1343,10 +1365,11 @@ class AlertSignature extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: ElevatedButton.icon(
                         style: ButtonStyle(
-                            shape: WidgetStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15))),
+                            shape:
+                                WidgetStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15))),
                             backgroundColor: WidgetStateProperty.all<Color>(
                                 AppConfig.appThemeConfig.primaryColor)),
                         onPressed: () {
@@ -1371,7 +1394,9 @@ class AlertSignature extends StatelessWidget {
                     ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)), backgroundColor: AppConfig.appThemeConfig.secondaryColor),
+                                borderRadius: BorderRadius.circular(12)),
+                            backgroundColor:
+                                AppConfig.appThemeConfig.secondaryColor),
                         onPressed: () async {
                           signatureController.clear();
                           fp.dismissAlert();
@@ -1380,7 +1405,9 @@ class AlertSignature extends StatelessWidget {
                     ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)), backgroundColor: AppConfig.appThemeConfig.secondaryColor),
+                                borderRadius: BorderRadius.circular(12)),
+                            backgroundColor:
+                                AppConfig.appThemeConfig.secondaryColor),
                         onPressed: onPress,
                         // : () async {
                         //     fp.dismissAlert();

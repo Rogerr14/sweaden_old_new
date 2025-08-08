@@ -54,7 +54,7 @@ class PersonalDataFormState extends State<PersonalDataFormWidget>
 
   @override
   void initState() {
-   // _saveIdtransaction();
+    // _saveIdtransaction();
     //idTransaccion = const Uuid().v4();
     _getStartDateInspection();
     super.initState();
@@ -164,7 +164,7 @@ class PersonalDataFormState extends State<PersonalDataFormWidget>
 
     _loadIdentificationSelect(widget.inspection.idTipoIdentificacion.toString(),
         widget.inspection.identificacion);
-    genderList = widget.dataClientForm.listaGenero
+    genderList = widget.dataClientForm.listaGenero.where((genre) => genre.isNatural == identificationType)
         .map((e) => S2Choice(
               value: e.codigo.toString(),
               title: e.descripcion,
@@ -180,13 +180,17 @@ class PersonalDataFormState extends State<PersonalDataFormWidget>
   }
 
   _loadClientData() async {
-    if (identificationController.text != '' && identificationController.text.isNotEmpty &&  identificationController.text != identification && isValidDocument) {
+    if (identificationController.text != '' &&
+        identificationController.text.isNotEmpty &&
+        identificationController.text != identification &&
+        isValidDocument) {
       queriedIdentification = identificationController.text;
       debugPrint("--- cargando datos del cliente ---");
       //final connection = await Helper.checkConnection();
       final fp = Provider.of<FunctionalProvider>(context, listen: false);
-      if(!fp.offline){
-         final response = await RequestReviewService().getDataClient(context, identificationController.text);
+      if (!fp.offline) {
+        final response = await RequestReviewService()
+            .getDataClient(context, identificationController.text);
         existError = response.error;
         if (response.data != null) {
           identification = identificationController.text;
@@ -195,20 +199,25 @@ class PersonalDataFormState extends State<PersonalDataFormWidget>
           // identificationController.text = '';
           _checkFormCompleted();
         }
-      }else{
+      } else {
         log(jsonEncode(widget.inspection));
         firstameController.text = widget.inspection.nombres;
         lastnameController.text = widget.inspection.apellidos;
         razonSocialController.text = widget.inspection.razonSocial;
-        Helper.snackBar(context: context, message: 'No tienes acceso a internet, porque estas en modo offline.', colorSnackBar: Colors.red);
+        Helper.snackBar(
+            context: context,
+            message:
+                'No tienes acceso a internet, porque estas en modo offline.',
+            colorSnackBar: Colors.red);
       }
     }
-     
+
     setState(() {});
   }
 
   _getDataStorage() async {
-    ContinueInspection? continueInspection = await InspectionStorage().getDataInspection(widget.inspection.idSolicitud.toString());
+    ContinueInspection? continueInspection = await InspectionStorage()
+        .getDataInspection(widget.inspection.idSolicitud.toString());
 
     if (continueInspection != null) {
       inspectionData = continueInspection;
@@ -243,7 +252,8 @@ class PersonalDataFormState extends State<PersonalDataFormWidget>
   }
 
   _saveDataStorage() async {
-    ContinueInspection? continueInspection = await InspectionStorage().getDataInspection(widget.inspection.idSolicitud.toString());
+    ContinueInspection? continueInspection = await InspectionStorage()
+        .getDataInspection(widget.inspection.idSolicitud.toString());
 
     if (continueInspection != null) {
       Helper.logger.w('entra en esto');
@@ -287,37 +297,78 @@ class PersonalDataFormState extends State<PersonalDataFormWidget>
 
     //Helper.logger.e(jsonEncode(body));
 
-    InspectionStorage().setDataInspection( inspectionData, widget.inspection.idSolicitud.toString());
+    InspectionStorage().setDataInspection(
+        inspectionData, widget.inspection.idSolicitud.toString());
   }
 
   _setDataInForm(DatosCliente dataClient) {
+    List<ListaProvincia> provincias = widget.dataClientForm.listaProvincia;
+    provincias.retainWhere((province) {
+      return province.idPais == "011";
+    });
+    List<ListaLocalidad> localidad = [];
     debugPrint(dataClient.toString());
     inspectionData.direccion = dataClient.persona.direcciones;
     inspectionData.incomes = dataClient.persona.rangoIngresosTrabajo;
-    inspectionData.telefono = dataClient.persona.telefonos;
-    inspectionData.celular = dataClient.persona.celulares;
+    inspectionData.telefono = (dataClient.persona.telefonoDomicilio != null &&
+            dataClient.persona.telefonoDomicilio!.isNotEmpty &&
+            dataClient.persona.telefonoDomicilio!.length == 10)
+        ? dataClient.persona.telefonoDomicilio?.substring(0, 10)
+        : dataClient.persona.telefonoDomicilio;
+    inspectionData.celular = (dataClient.persona.telefonoCelular != null &&
+            dataClient.persona.telefonoCelular!.isNotEmpty &&
+            dataClient.persona.telefonoCelular!.length == 10)
+        ? dataClient.persona.telefonoCelular?.substring(0, 10)
+        : dataClient.persona.telefonoCelular;
     inspectionData.pais = null;
     inspectionData.paisValue = null;
-    inspectionData.provincia = null;
-    inspectionData.provinciaValue = null;
-    inspectionData.localidad = null;
-    inspectionData.localidadValue = null;
-    inspectionData.actividadEconomica = null;
-    inspectionData.actividadEconomicaValue = null;
+    inspectionData.provincia = (dataClient.persona.codProvincia != null)
+        ? provincias
+            .firstWhere((provincia) =>
+                provincia.codigo == dataClient.persona.codProvincia)
+            .descripcion
+        : null;
+    inspectionData.provinciaValue = dataClient.persona.codProvincia;
+    if (dataClient.persona.codProvincia != null) {
+      ListaProvincia provincia = provincias
+          .firstWhere((prov) => prov.codigo == dataClient.persona.codProvincia);
+      localidad = provincia.listaLocalidad;
+    }
+
+    inspectionData.localidad = (dataClient.persona.codLocalidad != null)
+        ? localidad
+            .firstWhere((localidad) =>
+                localidad.codigo == dataClient.persona.codLocalidad)
+            .descripcion
+        : null;
+    inspectionData.localidadValue = dataClient.persona.codLocalidad;
+    inspectionData.actividadEconomicaValue = dataClient.persona.codActividad;
+    inspectionData.actividadEconomica =
+        (dataClient.persona.codActividad != null)
+            ? widget.dataClientForm.listaActividadEconomica
+                .firstWhere((actividad) =>
+                    actividad.codigo == dataClient.persona.codActividad)
+                .descripcion
+            : null;
     inspectionData.personaPublica = null;
     inspectionData.personaPublicaValue = null;
-
+    inspectionData.pasives = dataClient.persona.pasivos.toString();
+    inspectionData.actives = dataClient.persona.activos.toString();
+    razonSocialController.text = dataClient.persona.nombre ?? '';
     firstameController.text =
-        dataClient.persona.nombre1 + ' ' + dataClient.persona.nombre2;
+        '${dataClient.persona.nombre1} ${dataClient.persona.nombre2}';
     lastnameController.text =
-        dataClient.persona.apellido1 + ' ' + dataClient.persona.apellido2;
+        '${dataClient.persona.apellido1 ?? ''} ${dataClient.persona.apellido2 ?? ''}';
 
     calendarController.text = dataClient.persona.fechaNacimiento;
     emailController.text = dataClient.persona.email;
 
-    selectedGenderType = widget.dataClientForm.listaGenero
-        .firstWhere((e) => e.codigo == dataClient.persona.genero)
-        .descripcion;
+    selectedGenderType = (widget.dataClientForm.listaGenero
+            .any((genero) => genero.codigo == dataClient.persona.genero))
+        ? widget.dataClientForm.listaGenero
+            .firstWhere((e) => e.codigo == dataClient.persona.genero)
+            .descripcion
+        : dataClient.persona.genero;
     selectedGenderTypeValue = dataClient.persona.genero;
 
     selectedCivilStateType = widget.dataClientForm.listaEstadoCivil
@@ -409,7 +460,7 @@ class PersonalDataFormState extends State<PersonalDataFormWidget>
         ),
         // selectField(civilStateList, 'Estado Civil', selectedCivilStateType,
         //     selectedCivilStateTypeValue, null, _onchangeCivilState),
-        FadeInRight(
+       if(identificationType) FadeInRight(
             duration: const Duration(milliseconds: 600),
             child: SelectWidget(
                 title: 'Estado Civil',
@@ -507,7 +558,6 @@ class PersonalDataFormState extends State<PersonalDataFormWidget>
                   !hasFocus &&
                   queriedIdentification != identificationController.text) {
                 _loadClientData();
-                
               }
             },
             child: TextFieldWidget(
@@ -686,7 +736,8 @@ class PersonalDataFormState extends State<PersonalDataFormWidget>
             controller: firstameController,
             textInputType: TextInputType.text,
             inputFormatter: [
-              FilteringTextInputFormatter.allow(RegExp(r'[ a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]'))
+              FilteringTextInputFormatter.allow(
+                  RegExp(r'[ a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]'))
             ],
             onChanged: (value) {
               _checkFormCompleted();
@@ -713,7 +764,8 @@ class PersonalDataFormState extends State<PersonalDataFormWidget>
             textInputType: TextInputType.text,
             inputFormatter: [
               // FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
-              FilteringTextInputFormatter.allow(RegExp(r'[ a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]'))
+              FilteringTextInputFormatter.allow(
+                  RegExp(r'[ a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]'))
             ],
             onChanged: (value) {
               _checkFormCompleted();

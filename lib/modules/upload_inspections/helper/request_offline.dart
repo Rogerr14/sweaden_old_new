@@ -31,10 +31,11 @@ class HelperRequestOffline {
 
   static Future<String> getDataInspectionStorage(
       {required String idSoliciutd}) async {
-        Helper.logger.w( 'idSoliciutd: $idSoliciutd');
+    Helper.logger.w('idSoliciutd: $idSoliciutd');
     final dataInspection =
         await InspectionStorage().getDataInspection(idSoliciutd);
-    log(jsonEncode(dataInspection));
+    // log(jsonEncode(dataInspection));
+
     if (dataInspection != null) {
       log('entro hsy data');
       return dataInspection.identificacion!;
@@ -53,13 +54,15 @@ class HelperRequestOffline {
       }
       final dataMedia = await MediaDataStorage()
           .getMediaData(paramsLoadMedia.idSolicitudTemp);
-      List<bool> uploaded = [];
 
-      if (dataMedia != null) {
+      List<bool> uploaded = [];
+      log("media data elements: ${dataMedia?.length ?? 00}");
+      if (dataMedia != null && dataMedia.isNotEmpty) {
         final identification = await getDataInspectionStorage(
-                  idSoliciutd: paramsLoadMedia.idSolicitudTemp.toString());
-                  Helper.logger.w( 'identification: $identification');
+            idSoliciutd: paramsLoadMedia.idSolicitudTemp.toString());
+        Helper.logger.w('identification: $identification');
         for (var item in dataMedia) {
+          log("${item.idArchiveType} - ${item.path} - ${item.status}");
           if (item.status != 'UPLOADED' && item.status != 'NO_MEDIA') {
             final response = await MediaService().uploadMedia(
               context: context,
@@ -80,7 +83,8 @@ class HelperRequestOffline {
             if (!response.error) {
               uploaded.add(true);
             } else {
-              return true;
+              log(response.message);
+              uploaded.add(false);
             }
           }
         }
@@ -95,6 +99,9 @@ class HelperRequestOffline {
                 .length) {
           await MediaDataStorage()
               .removeMediaData(paramsLoadMedia.idSolicitudTemp);
+          return true;
+        } else {
+          return false;
         }
       } else {
         if (fp != null) {
@@ -102,14 +109,12 @@ class HelperRequestOffline {
         }
         return false;
       }
-
-      return false;
     } catch (e) {
       Helper.logger.e('error media service: $e');
       if (fp != null) {
         fp.setLoadingInspection(false);
       }
-      return true;
+      return false;
     }
   }
 
@@ -120,6 +125,8 @@ class HelperRequestOffline {
         paramsLoadRequest.idSolicitudTemp.toString()); // ID TEMPPORAL
 
     if (continueInspection != null) {
+      log("entra a cargar la inspeccion");
+      log(jsonEncode(continueInspection));
       final SaveInspection saveInspection = await getDataSave(
           continueInspection: continueInspection,
           inspectionParams: paramsLoadRequest.paramsRequest);
@@ -135,11 +142,11 @@ class HelperRequestOffline {
           idRequest: paramsLoadRequest.idSolicitudTemp /* ID TEMPPORAL*/,
           showLoading: paramsLoadRequest.showLoading,
           showAlertError: false);
-      //Helper.logger.e('response: ${jsonEncode(response)}');
+      Helper.logger.e('response: ${jsonEncode(response)}');
       return response;
       //return response.error;
-
     } else {
+      log("no hay ");
       return GeneralResponse(message: 'Ocurrio un error', error: true);
     }
   }
@@ -267,10 +274,9 @@ class HelperRequestOffline {
     // if(context != null){
 
     FunctionalProvider? fp;
-    if(context != null){
-
-    fp = Provider.of<FunctionalProvider>(context, listen: false);
-    fp.setLoadingInspection(true);
+    if (context != null) {
+      fp = Provider.of<FunctionalProvider>(context, listen: false);
+      fp.setLoadingInspection(true);
     }
     // }
     final response = await RequestReviewService().saveInspection(
@@ -289,9 +295,8 @@ class HelperRequestOffline {
         await InspectionStorage().removeDataInspection(idRequest.toString());
       }
       // if(context != null){
-      if(fp != null){
-
-      fp.setLoadingInspection(false);
+      if (fp != null) {
+        fp.setLoadingInspection(false);
       }
       // }
       return GeneralResponse(
@@ -299,9 +304,8 @@ class HelperRequestOffline {
           error: response.error,
           data: response.data);
     } else {
-      if(fp != null){
-
-      fp.setLoadingInspection(false);
+      if (fp != null) {
+        fp.setLoadingInspection(false);
       }
       return GeneralResponse(
           message: response.message, error: response.error, data: null);

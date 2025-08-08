@@ -53,9 +53,9 @@ class _LoadingPageState extends State<LoadingPage> {
 
   _verifyPermissionLocation() async {
     bool serviceLocationEnabled = await Geolocator.isLocationServiceEnabled();
-    Helper.logger.w("serviceLocationEnabled: $serviceLocationEnabled");
+    // Helper.logger.w("serviceLocationEnabled: $serviceLocationEnabled");
     final status = await Geolocator.checkPermission();
-    Helper.logger.e('permiso de ubicacion: $status');
+    // Helper.logger.e('permiso de ubicacion: $status');
 
     if (status == LocationPermission.always) {
       if (serviceLocationEnabled) {

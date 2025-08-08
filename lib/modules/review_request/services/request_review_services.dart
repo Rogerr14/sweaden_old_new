@@ -24,9 +24,9 @@ class RequestReviewService {
   InterceptorHttp interceptorHttp = InterceptorHttp();
 
   Future<GeneralResponse<List<ListInspectionDataResponse>>> getListInspect(
-      BuildContext? context) async {
+      BuildContext? context, {bool filtering = false, dynamic body}) async {
     try {
-      final option = {"opcion": "C_APP "};
+      final option = (filtering) ? body:{"opcion": "C_APP "};
       GeneralResponse response = await interceptorHttp.request(context, "POST",
           '${AppConfig.appEnv.serviceUrl}consultas/lista_inspecciones', option,
           showLoading: true);

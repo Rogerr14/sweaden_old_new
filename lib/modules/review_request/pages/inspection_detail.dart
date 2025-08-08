@@ -129,6 +129,7 @@ class _InspectionDetailPageState extends State<InspectionDetailPage>
   }
 
   _continueInspection(bool value) async {
+    Helper.dismissKeyboard(context);
     //bool connection = await Helper.checkConnection();
     final fp = Provider.of<FunctionalProvider>(context, listen: false);
     bool offline = fp.getOffline();
@@ -249,12 +250,11 @@ class _InspectionDetailPageState extends State<InspectionDetailPage>
                   onPress: () {
                     final fp =
                         Provider.of<FunctionalProvider>(context, listen: false);
-                    if (!fp.offline){
-                    UserDataStorage()
-                        .setIdInspection(inspection.idSolicitud.toString());
-
+                    if (!fp.offline) {
+                      UserDataStorage()
+                          .setIdInspection(inspection.idSolicitud.toString());
                     }
-                      // fp.setIdInspection(inspection.idSolicitud.toString());
+                    // fp.setIdInspection(inspection.idSolicitud.toString());
                     // Helper.logger.w(Helper.idInspection);
                     // Helper.logger.w(Helper.getIdInspection);
                   },

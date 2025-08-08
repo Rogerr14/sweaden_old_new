@@ -171,6 +171,7 @@ class _InspectionContinueFormPageState
                             .insert(0, widget.inspection);
                         await OfflineStorage().saveInspectionFinishedOffline(
                             ReviewRequestPage.listInspectionFinishedOffline);
+                             fp.dismissAlert();
                         Navigator.pushReplacement(
                             context,
                             PageTransition(
@@ -183,7 +184,7 @@ class _InspectionContinueFormPageState
                                 child: const ReviewRequestPage(),
                                 type: PageTransitionType.leftToRightWithFade));
                       }
-
+                     
                       //ORIGINAL
                       //aavanza ala pantalladal
                       //debugPrint('ok avanza');
@@ -207,8 +208,12 @@ class _InspectionContinueFormPageState
             message: 'Proceso exitoso!, ${response.data.toString()}',
             messageButton: 'Aceptar',
             onPress: () {
+              fp.dismissAlert();
               // fp.setIdInspection(null),
-              if (widget.inspection.idEstadoInspeccion == 4){MediaDataStorage().removeMediaData(widget.inspection.idSolicitud);}
+              if (widget.inspection.idEstadoInspeccion == 4) {
+                MediaDataStorage()
+                    .removeMediaData(widget.inspection.idSolicitud);
+              }
               UserDataStorage().removeIdInspection();
               Navigator.pushReplacement(
                   context,

@@ -32,7 +32,8 @@ class InterceptorHttp {
     String requestType = "JSON",
     Function(int sentBytes, int totalBytes)? onProgressLoad,
   }) async {
-    String url = "${AppConfig.appEnv.protocol}$urlEndPoint?${Uri(queryParameters: queryParameters).query}";
+    String url =
+        "${AppConfig.appEnv.protocol}$urlEndPoint?${Uri(queryParameters: queryParameters).query}";
 
     Helper.logger.t('URL $method: $url');
     late final FunctionalProvider fp;
@@ -48,7 +49,7 @@ class InterceptorHttp {
     GeneralResponse generalResponse =
         GeneralResponse(data: null, message: "", error: true, existData: true);
     if (context != null) {
-     fp =  Provider.of<FunctionalProvider>(context, listen: false);
+      fp = Provider.of<FunctionalProvider>(context, listen: false);
     }
 
     //?IN ERROR CASE
@@ -250,11 +251,12 @@ class InterceptorHttp {
                 onPress = () async {
                   fp.dismissAlert();
                   await UserDataStorage().removeUserData();
-                  if(context != null){
-                    
-                  Navigator.pushReplacement(context,
-                      Helper.navigationFadeIn(context, const LoginPage(), 800));
-                  } 
+                  if (context != null) {
+                    Navigator.pushReplacement(
+                        context,
+                        Helper.navigationFadeIn(
+                            context, const LoginPage(), 800));
+                  }
                 };
               } else {
                 generalResponse.message = responseDecoded["mensaje"]["user"];
@@ -309,9 +311,8 @@ class InterceptorHttp {
     }
 
     if (showLoading && !generalResponse.error) {
-      if(context != null){
-
-      fp.dismissAlert();
+      if (context != null) {
+        fp.dismissAlert();
       }
     }
     if (generalResponse.error) {

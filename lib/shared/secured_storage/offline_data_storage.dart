@@ -221,14 +221,12 @@ class OfflineStorage {
 
   Future<List<ListInspectionDataResponse>?>
       getInspectionFinishedOffline() async {
-    log('dededeede');
     final data = await storage.read(key: 'finished-offline');
     if (data != null) {
       List<dynamic> jsonData = jsonDecode(data);
       List<ListInspectionDataResponse> response = jsonData
           .map((item) => ListInspectionDataResponse.fromJson(item))
           .toList();
-      log(response.length.toString() + 'response');
       return response;
     }
     return null;

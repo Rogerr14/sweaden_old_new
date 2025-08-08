@@ -71,17 +71,17 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
       List<Request> request = await OfflineStorage().getCreatingRequests();
       final listInspectionfinishedOffline =
           await OfflineStorage().getInspectionFinishedOffline();
-      log(request.length.toString() + 'jjj');
+      // log(request.length.toString() + 'jjj');
       // if (request.isNotEmpty) {
       NewRequestPage.listCreatingrequests = request;
       // }
       if (listInspectionfinishedOffline != null) {
         // if (listInspectionfinishedOffline.first.lista.isNotEmpty) {
-          log(listInspectionfinishedOffline.length.toString() + 'jjj');
-          ReviewRequestPage.listInspectionFinishedOffline.clear();
-        for(var inspesction in listInspectionfinishedOffline){
-          
-          ReviewRequestPage.listInspectionFinishedOffline.addAll(inspesction.lista);
+        // log(listInspectionfinishedOffline.length.toString() + 'jjj');
+        ReviewRequestPage.listInspectionFinishedOffline.clear();
+        for (var inspesction in listInspectionfinishedOffline) {
+          ReviewRequestPage.listInspectionFinishedOffline
+              .addAll(inspesction.lista);
         }
         // }
       }
@@ -90,7 +90,7 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
   }
 
   List<Widget> requestsDownload() {
-    log(jsonEncode(ReviewRequestPage.listInspectionFinishedOffline.first));
+    // log(jsonEncode(ReviewRequestPage.listInspectionFinishedOffline.first));
     return ReviewRequestPage.listInspectionFinishedOffline
         //widget.inspectionOffline
         .where((valid) => valid.creacionOffline == false)
@@ -153,7 +153,6 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                 //  if (pendingCount <= 0) {
                 //           dismissAlertService(fp: fp);
                 //         }
-
               } else {
                 fp.setLoadingInspection(false);
                 fp.dismissAlert();
@@ -307,7 +306,7 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
   }
 
   List<Widget> listInspection() {
-    Logger().w(jsonEncode(NewRequestPage.listCreatingrequests.first));
+    // Logger().w(jsonEncode(NewRequestPage.listCreatingrequests.first));
     return NewRequestPage.listCreatingrequests.asMap().entries.map((entry) {
       int index = entry.key;
       Request request = entry.value;
@@ -318,216 +317,276 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           child: Container(
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: AppConfig.appThemeConfig.secondaryColor),
+              borderRadius: BorderRadius.circular(10),
+              color: AppConfig.appThemeConfig.secondaryColor,
+            ),
             padding: const EdgeInsets.symmetric(horizontal: 0.5, vertical: 0.5),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: ExpansionPanelList(
-                expansionCallback: !fp.loadingInspection
-                    ? (int panelIndex, bool isExpanded) {
-                        setState(() {
-                          _currentOpenIndex = isExpanded ? -1 : index;
-                          currentStep = 0;
-                        });
-                      }
-                    : null,
-                children: [
-                  ExpansionPanel(
-                    headerBuilder: (context, isExpanded) {
-                      return GestureDetector(
-                        onTap: !fp.loadingInspection
-                            ? () {
-                                setState(() {
-                                  _currentOpenIndex = isExpanded ? -1 : index;
-                                  currentStep = 0;
-                                });
-                              }
-                            : null,
-                        child: ListTile(
-                          title: HelperRequestOffline.clientRequest(
-                              request: request),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                HelperRequestOffline.statusRequest(
-                                    request: request),
-                                TextRichWidget(
-                                    title: 'Placa',
-                                    subtitle: request
-                                        .dataSolicitud!.datosVehiculo!.placa!,
-                                    colorSubtitle: Colors.red),
-                                const TextRichWidget(
-                                    title: 'Proceso',
-                                    subtitle: 'Proc sin Emisión'),
-                                TextRichWidget(
-                                    title: 'Dirección',
-                                    subtitle:
-                                        request.dataSolicitud!.direccion!),
-                                TextRichWidget(
-                                    title: 'N° Teléfono',
-                                    subtitle: request.dataSolicitud!.telefono!),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                    body: Column(
+              child: ExpansionTile(
+                backgroundColor: Colors.white,
+                collapsedBackgroundColor: Colors.white,
+                title: ListTile(
+                  title: HelperRequestOffline.clientRequest(request: request),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        fp.loadingInspection
-                            ? const Text(
-                                'Estimado usuario mientras carga la informacion no realice ninguna otra acción.',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.center)
-                            : const SizedBox(),
-                        const SizedBox(height: 5),
-                        Visibility(
-                          visible: (request.statusSolicitudRegistrada !=
-                                  HelperRequestOffline.loaded ||
-                              request.statusMultimediaRegistrada !=
-                                  HelperRequestOffline.loaded ||
-                              request.statusInspeccionRegistrada !=
-                                  HelperRequestOffline.loaded),
-                          child: ElevatedButton.icon(
-                            icon: fp.loadingInspection
-                                ? const RotatingIcon(icon: Icon(Icons.sync))
-                                : const Icon(Icons.upload_rounded),
-                            label: Text(fp.loadingInspection
+                        HelperRequestOffline.statusRequest(request: request),
+                        TextRichWidget(
+                          title: 'Placa',
+                          subtitle:
+                              request.dataSolicitud!.datosVehiculo!.placa!,
+                          colorSubtitle: Colors.red,
+                        ),
+                        const TextRichWidget(
+                          title: 'Proceso',
+                          subtitle: 'Proc sin Emisión',
+                        ),
+                        TextRichWidget(
+                          title: 'Dirección',
+                          subtitle: request.dataSolicitud!.direccion!,
+                        ),
+                        TextRichWidget(
+                          title: 'N° Teléfono',
+                          subtitle: request.dataSolicitud!.telefono!,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                children: [
+                  Column(
+                    children: [
+                      if (fp.loadingInspection)
+                        const Text(
+                          'Estimado usuario mientras carga la informacion no realice ninguna otra acción.',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                      const SizedBox(height: 5),
+                      if (request.statusSolicitudRegistrada !=
+                              HelperRequestOffline.loaded ||
+                          request.statusMultimediaRegistrada !=
+                              HelperRequestOffline.loaded ||
+                          request.statusInspeccionRegistrada !=
+                              HelperRequestOffline.loaded)
+                        ElevatedButton.icon(
+                          icon: fp.loadingInspection
+                              ? const RotatingIcon(icon: Icon(Icons.sync))
+                              : const Icon(Icons.upload_rounded),
+                          label: Text(
+                            fp.loadingInspection
                                 ? 'Cargando...'
                                 : HelperRequestOffline.nameButtonUploadRequest(
-                                    request: request)),
-                            onPressed: !fp.loadingInspection
-                                ? () async {
-                                    if (!fp.offline) {
-                                      fp.setLoadingInspection(true);
-                                      //await Future.delayed(Duration(seconds: 5));
-                                      int index = NewRequestPage
-                                          .listCreatingrequests
-                                          .indexWhere((item) =>
-                                              item.idSolicitudTemp ==
-                                              request.idSolicitudTemp);
+                                    request: request),
+                          ),
+                          onPressed: !fp.loadingInspection
+                              ? () async {
+                                  if (!fp.offline) {
+                                    fp.setLoadingInspection(true);
+                                    int index = NewRequestPage
+                                        .listCreatingrequests
+                                        .indexWhere((item) =>
+                                            item.idSolicitudTemp ==
+                                            request.idSolicitudTemp);
 
-                                      if (request.idSolicitudServicio == 0) {
-                                        final response =
-                                            await _newRequestService
-                                                .registerRequest(
-                                                    context, request,
-                                                    viewAlertError: false);
+                                    if (request.idSolicitudServicio == 0) {
+                                      final response = await _newRequestService
+                                          .registerRequest(
+                                        context,
+                                        request,
+                                        viewAlertError: false,
+                                      );
 
-                                        if (!response.error &&
-                                            response.data != null) {
+                                      if (!response.error &&
+                                          response.data != null) {
+                                        Helper.logger.i(
+                                            'la solicitud se registro correctamente');
+                                        idRequest =
+                                            response.data[0]["idSolicitud"];
+                                        currentStep = 1;
+                                        errorRegisterRequest = false;
+
+                                        if (index != -1) {
+                                          NewRequestPage
+                                              .listCreatingrequests[index]
+                                              .idSolicitudServicio = idRequest;
+                                          NewRequestPage
+                                                  .listCreatingrequests[index]
+                                                  .statusSolicitudRegistrada =
+                                              HelperRequestOffline.loaded;
+                                          _offlineStorage.saveCreatingRequests(
+                                              value: NewRequestPage
+                                                  .listCreatingrequests);
+                                        }
+                                        setState(() {});
+                                      } else {
+                                        Helper.logger.e(
+                                            'Ocurrio un error al registrar la solicitud, guarda el error');
+                                        if (index != -1) {
+                                          NewRequestPage
+                                                  .listCreatingrequests[index]
+                                                  .statusSolicitudRegistrada =
+                                              HelperRequestOffline.error;
+                                          NewRequestPage
+                                                  .listCreatingrequests[index]
+                                                  .mensageErrorSolicitudRegistrar =
+                                              response.message;
+                                          _offlineStorage.saveCreatingRequests(
+                                              value: NewRequestPage
+                                                  .listCreatingrequests);
+                                        }
+                                        errorRegisterRequest = true;
+                                        fp.setLoadingInspection(false);
+                                        fp.dismissAlert();
+                                        setState(() {});
+                                      }
+                                    } else {
+                                      Helper.logger.w(
+                                          'esta solicitud ya fue registrada, tomar el id de la solicitud guardado en storage');
+                                      idRequest = request.idSolicitudServicio!;
+                                      errorRegisterRequest = false;
+                                      setState(() {});
+                                    }
+
+                                    if (!errorRegisterRequest) {
+                                      if (request.statusMultimediaRegistrada !=
+                                          HelperRequestOffline.loaded) {
+                                        bool loadMedia =
+                                            await HelperRequestOffline
+                                                .loadMediaDataService(
+                                          fp: fp,
+                                          context: context,
+                                          paramsLoadMedia: ParamsLoadMedia(
+                                            idRequestReal: idRequest,
+                                            idSolicitudTemp:
+                                                request.idSolicitudTemp!,
+                                          ),
+                                        );
+
+                                        if (!loadMedia) {
                                           Helper.logger.i(
-                                              'la solicitud se registro correctamente');
-                                          idRequest =
-                                              response.data[0]["idSolicitud"];
-                                          currentStep =
-                                              1; //REVISAR SI SE USA ESTA VARIABLE
-                                          errorRegisterRequest = false;
-
+                                              'la multimedia se subio correctamente');
+                                          errorLoadMedia = false;
+                                          currentStep = 2;
                                           if (index != -1) {
                                             NewRequestPage
                                                     .listCreatingrequests[index]
-                                                    .idSolicitudServicio =
-                                                idRequest;
-                                            NewRequestPage
-                                                    .listCreatingrequests[index]
-                                                    .statusSolicitudRegistrada =
+                                                    .statusMultimediaRegistrada =
                                                 HelperRequestOffline.loaded;
                                             _offlineStorage
                                                 .saveCreatingRequests(
                                                     value: NewRequestPage
                                                         .listCreatingrequests);
                                           }
+
+                                          if (request
+                                                  .statusInspeccionRegistrada ==
+                                              HelperRequestOffline.loaded) {
+                                            Helper.logger.w(
+                                                'entro e elimino la informacion de la inspeccion, porque reintento enviar multimedia y esta cargada la informacion de la solicitud');
+                                            await InspectionStorage()
+                                                .removeDataInspection(request
+                                                    .idSolicitudTemp
+                                                    .toString());
+                                          }
+
                                           setState(() {});
                                         } else {
-                                          Helper.logger.e(
-                                              'Ocurrio un error al registrar la solicitud, guarda el error');
+                                          fp.setLoadingInspection(false);
+                                          Helper.logger.w(
+                                              'ocurrio un error al registrar la multimedia, guarda error y continua');
+                                          errorLoadMedia = false;
+                                          currentStep = 2;
                                           if (index != -1) {
                                             NewRequestPage
                                                     .listCreatingrequests[index]
-                                                    .statusSolicitudRegistrada =
+                                                    .statusMultimediaRegistrada =
                                                 HelperRequestOffline.error;
-                                            NewRequestPage
-                                                    .listCreatingrequests[index]
-                                                    .mensageErrorSolicitudRegistrar =
-                                                response.message;
                                             _offlineStorage
                                                 .saveCreatingRequests(
                                                     value: NewRequestPage
                                                         .listCreatingrequests);
                                           }
-                                          errorRegisterRequest = true;
-                                          fp.setLoadingInspection(false);
-                                          fp.dismissAlert();
                                           setState(() {});
                                         }
-                                      } else {
-                                        Helper.logger.w(
-                                            'esta solicitud ya fue registrada, tomar el id de la solicitud guardado en storage');
-                                        idRequest =
-                                            request.idSolicitudServicio!;
-                                        errorRegisterRequest = false;
-                                        setState(() {});
                                       }
 
-                                      if (!errorRegisterRequest) {
+                                      if (!errorLoadMedia) {
                                         if (request
-                                                .statusMultimediaRegistrada !=
+                                                .statusInspeccionRegistrada !=
                                             HelperRequestOffline.loaded) {
-                                          bool loadMedia = await HelperRequestOffline
-                                              .loadMediaDataService(
-                                                  fp: fp,
-                                                  context: context,
-                                                  paramsLoadMedia: ParamsLoadMedia(
-                                                      idRequestReal: idRequest,
-                                                      idSolicitudTemp: request
-                                                          .idSolicitudTemp!));
-
-                                          if (!loadMedia) {
+                                          fp.setLoadingInspection(true);
+                                          final loadInformation =
+                                              await HelperRequestOffline
+                                                  .loadInformationRequestService(
+                                            context: context,
+                                            paramsLoadRequest:
+                                                ParamsLoadRequest(
+                                              errorMediaLoad: request
+                                                      .statusMultimediaRegistrada ==
+                                                  HelperRequestOffline.error,
+                                              idRequestReal: idRequest,
+                                              idSolicitudTemp:
+                                                  request.idSolicitudTemp!,
+                                              paramsRequest: ParamsRequest(
+                                                codEjecutivo: request
+                                                    .dataSolicitud!
+                                                    .ejecutivo!
+                                                    .codEjecutivo!,
+                                                idAgencia: request
+                                                    .dataSolicitud!.idAgencia!,
+                                                idBroker: request
+                                                    .dataSolicitud!.idBroker!,
+                                                idProceso: request
+                                                    .dataSolicitud!.idProceso!,
+                                                idSolicitud:
+                                                    request.idSolicitudTemp!,
+                                                idTipoFlujo: request
+                                                    .dataSolicitud!
+                                                    .idTipoFlujo!,
+                                                polizaMadre: request
+                                                    .dataSolicitud!.polizaMadre,
+                                              ),
+                                            ),
+                                          );
+                                          log("cargar informacion: ${loadInformation.error}");
+                                          if (!loadInformation.error) {
+                                            fp.setLoadingInspection(false);
                                             Helper.logger.i(
-                                                'la multimedia se subio correctamente');
-                                            errorLoadMedia = false;
-                                            currentStep =
-                                                2; //REVISAR SI SE USA ESTA VARIABLE
+                                                'la inspeccion se cargo y finalizo correctamente');
                                             if (index != -1) {
                                               NewRequestPage
                                                       .listCreatingrequests[index]
-                                                      .statusMultimediaRegistrada =
+                                                      .statusInspeccionRegistrada =
                                                   HelperRequestOffline.loaded;
+                                              NewRequestPage
+                                                      .listCreatingrequests[index]
+                                                      .messageInspectionRegistrada =
+                                                  loadInformation.data
+                                                      .toString();
                                               _offlineStorage
                                                   .saveCreatingRequests(
                                                       value: NewRequestPage
                                                           .listCreatingrequests);
                                             }
-
-                                            if (request
-                                                    .statusInspeccionRegistrada ==
-                                                HelperRequestOffline.loaded) {
-                                              Helper.logger.w(
-                                                  'entro e elimino la informacion de la inspeccion, porque reintento enviar multimedia y esta cargada la informacion de la solicitud');
-                                              await InspectionStorage()
-                                                  .removeDataInspection(request
-                                                      .idSolicitudTemp
-                                                      .toString());
-                                            }
-
                                             setState(() {});
                                           } else {
                                             fp.setLoadingInspection(false);
-                                            Helper.logger.w(
-                                                'ocurrio un error al registrar la multimedia, guarda error y continua');
-                                            errorLoadMedia =
-                                                false; //FALSO PORQUE CONTINUA CON EL PROCESO SI HAY ERROR
-                                            currentStep =
-                                                2; //REVISAR SI SE USA ESTA VARIABLE
+                                            Helper.logger.e(
+                                                'ocurrio un error al finalizar la inspeccion');
+                                            fp.dismissAlert();
                                             if (index != -1) {
                                               NewRequestPage
                                                       .listCreatingrequests[index]
-                                                      .statusMultimediaRegistrada =
+                                                      .statusInspeccionRegistrada =
                                                   HelperRequestOffline.error;
+                                              NewRequestPage
+                                                      .listCreatingrequests[index]
+                                                      .mensageErrorRegistrarInspection =
+                                                  loadInformation.message;
                                               _offlineStorage
                                                   .saveCreatingRequests(
                                                       value: NewRequestPage
@@ -536,286 +595,194 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                                             setState(() {});
                                           }
                                         }
-
-                                        //SIGUIENTE VALIDACION QUE CONTINUE SI HAY ERROR DE MULTIMEDIA O NO
-
-                                        if (!errorLoadMedia) {
-                                          if (request
-                                                  .statusInspeccionRegistrada !=
-                                              HelperRequestOffline.loaded) {
-                                            fp.setLoadingInspection(true);
-                                            final loadInformation =
-                                                await HelperRequestOffline
-                                                    .loadInformationRequestService(
-                                              context: context,
-                                              paramsLoadRequest: ParamsLoadRequest(
-                                                  errorMediaLoad: request
-                                                          .statusMultimediaRegistrada ==
-                                                      HelperRequestOffline
-                                                          .error,
-                                                  idRequestReal: idRequest,
-                                                  idSolicitudTemp:
-                                                      request.idSolicitudTemp!,
-                                                  paramsRequest: ParamsRequest(
-                                                      codEjecutivo: request
-                                                          .dataSolicitud!
-                                                          .ejecutivo!
-                                                          .codEjecutivo!,
-                                                      idAgencia: request
-                                                          .dataSolicitud!
-                                                          .idAgencia!,
-                                                      idBroker: request
-                                                          .dataSolicitud!
-                                                          .idBroker!,
-                                                      idProceso: request
-                                                          .dataSolicitud!
-                                                          .idProceso!,
-                                                      idSolicitud: request
-                                                          .idSolicitudTemp!,
-                                                      idTipoFlujo: request
-                                                          .dataSolicitud!
-                                                          .idTipoFlujo!,
-                                                      polizaMadre: request
-                                                          .dataSolicitud!
-                                                          .polizaMadre)),
-                                            );
-
-                                            if (!loadInformation.error) {
-                                              fp.setLoadingInspection(false);
-                                              Helper.logger.i(
-                                                  'la inspeccion se cargo y finalizo correctamente');
-                                              if (index != -1) {
-                                                NewRequestPage
-                                                        .listCreatingrequests[index]
-                                                        .statusInspeccionRegistrada =
-                                                    HelperRequestOffline.loaded;
-                                                NewRequestPage
-                                                        .listCreatingrequests[index]
-                                                        .messageInspectionRegistrada =
-                                                    loadInformation.data
-                                                        .toString();
-                                                _offlineStorage
-                                                    .saveCreatingRequests(
-                                                        value: NewRequestPage
-                                                            .listCreatingrequests);
-                                              }
-                                              setState(() {});
-                                            } else {
-                                              fp.setLoadingInspection(false);
-                                              Helper.logger.e(
-                                                  'ocurrio un error al finalizar la inspeccion');
-                                              fp.dismissAlert();
-                                              if (index != -1) {
-                                                NewRequestPage
-                                                        .listCreatingrequests[index]
-                                                        .statusInspeccionRegistrada =
-                                                    HelperRequestOffline.error;
-                                                NewRequestPage
-                                                        .listCreatingrequests[index]
-                                                        .mensageErrorRegistrarInspection =
-                                                    loadInformation.message;
-                                                _offlineStorage
-                                                    .saveCreatingRequests(
-                                                        value: NewRequestPage
-                                                            .listCreatingrequests);
-                                              }
-                                              setState(() {});
-                                            }
-                                          }
-                                        }
                                       }
-
-                                      //ELIMINAR LA INFORMACION DEL ARREGLO DE INSPECCIONES OFFLINE
-                                      if (request.statusSolicitudRegistrada ==
-                                              HelperRequestOffline.loaded &&
-                                          request.statusMultimediaRegistrada ==
-                                              HelperRequestOffline.loaded &&
-                                          request.statusInspeccionRegistrada ==
-                                              HelperRequestOffline.loaded) {
-                                        Helper.logger.i(
-                                            'se elimino toda la informacion todo se envio correctamente...');
-                                        ReviewRequestPage
-                                            .listInspectionFinishedOffline
-                                            .removeWhere((e) =>
-                                                e.idSolicitud ==
-                                                request.idSolicitudTemp);
-                                        _offlineStorage
-                                            .saveInspectionFinishedOffline(
-                                                ReviewRequestPage
-                                                    .listInspectionFinishedOffline);
-                                        NewRequestPage.listCreatingrequests
-                                            .removeWhere((e) =>
-                                                e.idSolicitudTemp ==
-                                                request.idSolicitudTemp);
-                                        //NewRequestPage.listCreatingrequests.removeAt(index);
-                                        _offlineStorage.saveCreatingRequests(
-                                            value: NewRequestPage
-                                                .listCreatingrequests);
-                                        setState(() {});
-                                      }
-                                    } else {
-                                      Helper.snackBar(
-                                          context: context,
-                                          message:
-                                              'No tienes conexion a internet.',
-                                          colorSnackBar: Colors.red);
                                     }
+
+                                    if (request.statusSolicitudRegistrada ==
+                                            HelperRequestOffline.loaded &&
+                                        request.statusMultimediaRegistrada ==
+                                            HelperRequestOffline.loaded &&
+                                        request.statusInspeccionRegistrada ==
+                                            HelperRequestOffline.loaded) {
+                                      Helper.logger.i(
+                                          'se elimino toda la informacion todo se envio correctamente...');
+                                      ReviewRequestPage
+                                          .listInspectionFinishedOffline
+                                          .removeWhere((e) =>
+                                              e.idSolicitud ==
+                                              request.idSolicitudTemp);
+                                      _offlineStorage
+                                          .saveInspectionFinishedOffline(
+                                              ReviewRequestPage
+                                                  .listInspectionFinishedOffline);
+                                      NewRequestPage.listCreatingrequests
+                                          .removeWhere((e) =>
+                                              e.idSolicitudTemp ==
+                                              request.idSolicitudTemp);
+                                      _offlineStorage.saveCreatingRequests(
+                                          value: NewRequestPage
+                                              .listCreatingrequests);
+                                      setState(() {});
+                                    }
+                                  } else {
+                                    Helper.snackBar(
+                                      context: context,
+                                      message: 'No tienes conexion a internet.',
+                                      colorSnackBar: Colors.red,
+                                    );
                                   }
-                                : null,
+                                }
+                              : null,
+                        ),
+                      Theme(
+                        data: ThemeData(
+                          colorScheme: ColorScheme.light(
+                            primary: AppConfig.appThemeConfig.secondaryColor,
                           ),
                         ),
-                        Theme(
-                          data: ThemeData(
-                              colorScheme: ColorScheme.light(
-                                  primary:
-                                      AppConfig.appThemeConfig.secondaryColor)),
-                          child: Stepper(
-                            physics: const NeverScrollableScrollPhysics(),
-                            controlsBuilder: (context, details) {
-                              return Row(
+                        child: Stepper(
+                          physics: const NeverScrollableScrollPhysics(),
+                          controlsBuilder: (context, details) {
+                            return Row(
+                              children: [
+                                if (currentStep != 0)
+                                  Visibility(
+                                    visible: false,
+                                    child: TextButton(
+                                      onPressed: details.onStepCancel,
+                                      child: const Text('Anterior'),
+                                    ),
+                                  ),
+                                if (currentStep != 2)
+                                  Visibility(
+                                    visible: false,
+                                    child: TextButton(
+                                      onPressed: details.onStepContinue,
+                                      child: const Text('Siguiente'),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                          currentStep: currentStep,
+                          onStepContinue: onStepContinue,
+                          onStepCancel: onStepCancel,
+                          onStepTapped: (step) => onStepTapped(step),
+                          steps: [
+                            Step(
+                              state: HelperRequestOffline.stepState(
+                                  status: request.statusSolicitudRegistrada!),
+                              isActive: HelperRequestOffline.isStepActive(
+                                  status: request.statusSolicitudRegistrada!),
+                              title: const Text('Registrar solicitud'),
+                              content: request.statusSolicitudRegistrada ==
+                                      HelperRequestOffline.error
+                                  ? Center(
+                                      child: Text(
+                                        request.mensageErrorSolicitudRegistrar ??
+                                            '',
+                                        style: HelperRequestOffline.styles(
+                                            color: Colors.red),
+                                      ),
+                                    )
+                                  : const SizedBox(),
+                            ),
+                            Step(
+                              state: HelperRequestOffline.stepState(
+                                  status: request.statusMultimediaRegistrada!),
+                              isActive: HelperRequestOffline.isStepActive(
+                                  status: request.statusMultimediaRegistrada!),
+                              title: const Text('Enviar multimedia'),
+                              content: request.statusMultimediaRegistrada ==
+                                      HelperRequestOffline.error
+                                  ? Center(
+                                      child: Text(
+                                        request.mensageErrorMultimedia ?? '',
+                                        style: HelperRequestOffline.styles(
+                                            color: Colors.red),
+                                      ),
+                                    )
+                                  : const SizedBox(),
+                            ),
+                            Step(
+                              state: HelperRequestOffline.stepState(
+                                  status: request.statusInspeccionRegistrada!),
+                              isActive: HelperRequestOffline.isStepActive(
+                                  status: request.statusInspeccionRegistrada!),
+                              title: const Text(
+                                  'Enviar información de la inspección'),
+                              content: Wrap(
                                 children: [
-                                  if (currentStep != 0)
-                                    Visibility(
-                                      visible: false,
-                                      child: TextButton(
-                                        onPressed: details.onStepCancel,
-                                        child: const Text('Anterior'),
-                                      ),
-                                    ),
-                                  if (currentStep != 2)
-                                    Visibility(
-                                      visible: false,
-                                      child: TextButton(
-                                        onPressed: details.onStepContinue,
-                                        child: const Text('Siguiente'),
-                                      ),
-                                    ),
-                                ],
-                              );
-                            },
-                            currentStep: currentStep,
-                            //currentStep: fp.loadingInspection ? HelperRequestOffline.currentStep(request: request) : 2,
-                            onStepContinue: onStepContinue,
-                            onStepCancel: onStepCancel,
-                            onStepTapped: (step) => onStepTapped(step),
-                            steps: [
-                              Step(
-                                state: HelperRequestOffline.stepState(
-                                    status: request.statusSolicitudRegistrada!),
-                                isActive: HelperRequestOffline.isStepActive(
-                                    status: request.statusSolicitudRegistrada!),
-                                title: const Text('Registrar solicitud'),
-                                content: request.statusSolicitudRegistrada ==
-                                        HelperRequestOffline.error
-                                    ? Center(
-                                        child: Text(
-                                            request.mensageErrorSolicitudRegistrar ??
-                                                '',
-                                            style: HelperRequestOffline.styles(
-                                                color: Colors.red)))
-                                    : const SizedBox(),
-                              ),
-                              Step(
-                                state: HelperRequestOffline.stepState(
-                                    status:
-                                        request.statusMultimediaRegistrada!),
-                                isActive: HelperRequestOffline.isStepActive(
-                                    status:
-                                        request.statusMultimediaRegistrada!),
-                                title: const Text('Enviar multimedia'),
-                                content: request.statusMultimediaRegistrada ==
-                                        HelperRequestOffline.error
-                                    ? Center(
-                                        child: Text(
-                                            request.mensageErrorMultimedia ??
-                                                '',
-                                            style: HelperRequestOffline.styles(
-                                                color: Colors.red)))
-                                    : const SizedBox(),
-                              ),
-                              Step(
-                                  state: HelperRequestOffline.stepState(
-                                      status:
-                                          request.statusInspeccionRegistrada!),
-                                  isActive: HelperRequestOffline.isStepActive(
-                                      status:
-                                          request.statusInspeccionRegistrada!),
-                                  title: const Text(
-                                      'Enviar información de la inspección'),
-                                  content: Wrap(
-                                    children: [
-                                      request.statusInspeccionRegistrada ==
-                                              HelperRequestOffline.error
-                                          ? Center(
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(10.0),
-                                                child: ElevatedButton.icon(
-                                                  style: ButtonStyle(
-                                                      backgroundColor:
-                                                          WidgetStateProperty
-                                                              .all(Colors.red)),
-                                                  label: const Text('Eliminar'),
-                                                  icon:
-                                                      const Icon(Icons.delete),
-                                                  onPressed: () {
-                                                    fp.showAlert(
-                                                        content: AlertConfirm(
-                                                      message:
-                                                          'Antes de eliminar verifique que la informacion se cargo correctamente, ¿Esta seguro de eliminar la información de esta solicitud locamente?',
-                                                      confirm: () async {
-                                                        Helper.logger.i(
-                                                            'se elimino toda la informacion');
-                                                        await InspectionStorage()
-                                                            .removeDataInspection(
-                                                                request
-                                                                    .idSolicitudTemp
-                                                                    .toString());
-                                                        ReviewRequestPage
-                                                            .listInspectionFinishedOffline
-                                                            .removeWhere((e) =>
-                                                                e.idSolicitud ==
-                                                                request
-                                                                    .idSolicitudTemp);
-                                                        _offlineStorage
-                                                            .saveInspectionFinishedOffline(
-                                                                ReviewRequestPage
-                                                                    .listInspectionFinishedOffline);
-                                                        NewRequestPage
-                                                            .listCreatingrequests
-                                                            .removeWhere((e) =>
-                                                                e.idSolicitudTemp ==
-                                                                request
-                                                                    .idSolicitudTemp);
-                                                        //NewRequestPage.listCreatingrequests.removeAt(index);
-                                                        _offlineStorage
-                                                            .saveCreatingRequests(
-                                                                value: NewRequestPage
-                                                                    .listCreatingrequests);
-                                                        setState(() {});
-                                                        fp.dismissAlert();
-                                                      },
-                                                    ));
-                                                  },
-                                                ),
+                                  if (request.statusInspeccionRegistrada ==
+                                      HelperRequestOffline.error)
+                                    Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: ElevatedButton.icon(
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                WidgetStateProperty.all(
+                                                    Colors.red),
+                                          ),
+                                          label: const Text('Eliminar'),
+                                          icon: const Icon(Icons.delete),
+                                          onPressed: () {
+                                            fp.showAlert(
+                                              content: AlertConfirm(
+                                                message:
+                                                    'Antes de eliminar verifique que la informacion se cargo correctamente, ¿Esta seguro de eliminar la información de esta solicitud locamente?',
+                                                confirm: () async {
+                                                  Helper.logger.i(
+                                                      'se elimino toda la informacion');
+                                                  await InspectionStorage()
+                                                      .removeDataInspection(
+                                                          request
+                                                              .idSolicitudTemp
+                                                              .toString());
+                                                  ReviewRequestPage
+                                                      .listInspectionFinishedOffline
+                                                      .removeWhere((e) =>
+                                                          e.idSolicitud ==
+                                                          request
+                                                              .idSolicitudTemp);
+                                                  _offlineStorage
+                                                      .saveInspectionFinishedOffline(
+                                                          ReviewRequestPage
+                                                              .listInspectionFinishedOffline);
+                                                  NewRequestPage
+                                                      .listCreatingrequests
+                                                      .removeWhere((e) =>
+                                                          e.idSolicitudTemp ==
+                                                          request
+                                                              .idSolicitudTemp);
+                                                  _offlineStorage
+                                                      .saveCreatingRequests(
+                                                          value: NewRequestPage
+                                                              .listCreatingrequests);
+                                                  setState(() {});
+                                                  fp.dismissAlert();
+                                                },
                                               ),
-                                            )
-                                          : SizedBox(),
-                                      Center(
-                                          child: Text(
-                                              request.mensageErrorRegistrarInspection ??
-                                                  'Ocurrio un error',
-                                              style:
-                                                  HelperRequestOffline.styles(
-                                                      color: Colors.red)))
-                                    ],
-                                  ))
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                    isExpanded: _currentOpenIndex == index,
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  Center(
+                                    child: Text(
+                                      request.mensageErrorRegistrarInspection ??
+                                          'Ocurrio un error',
+                                      style: HelperRequestOffline.styles(
+                                          color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -825,6 +792,525 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
       );
     }).toList();
   }
+  // List<Widget> listInspection() {
+  //   // Logger().w(jsonEncode(NewRequestPage.listCreatingrequests.first));
+  //   return NewRequestPage.listCreatingrequests.asMap().entries.map((entry) {
+  //     int index = entry.key;
+  //     Request request = entry.value;
+
+  //     return Visibility(
+  //       visible: request.completedOffline!,
+  //       child: Padding(
+  //         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+  //         child: Container(
+  //           decoration: BoxDecoration(
+  //               borderRadius: BorderRadius.circular(10),
+  //               color: AppConfig.appThemeConfig.secondaryColor),
+  //           padding: const EdgeInsets.symmetric(horizontal: 0.5, vertical: 0.5),
+  //           child: ClipRRect(
+  //             borderRadius: BorderRadius.circular(10),
+  //             child: ExpansionPanelList(
+  //               expansionCallback: !fp.loadingInspection
+  //                   ? (int panelIndex, bool isExpanded) {
+  //                         _currentOpenIndex = isExpanded ? -1 : index;
+  //                         currentStep = 0;
+  //                       setState(() {
+  //                       });
+  //                     }
+  //                   : null,
+  //               children: [
+  //                 ExpansionPanel(
+  //                   headerBuilder: (context, isExpanded) {
+  //                     return GestureDetector(
+  //                       onTap: !fp.loadingInspection
+  //                           ? () {
+  //                                 _currentOpenIndex = isExpanded ? -1 : index;
+  //                                 currentStep = 0;
+  //                               setState(() {
+  //                               });
+  //                             }
+  //                           : null,
+  //                       child: ListTile(
+  //                         title: HelperRequestOffline.clientRequest(
+  //                             request: request),
+  //                         subtitle: Padding(
+  //                           padding: const EdgeInsets.symmetric(vertical: 5),
+  //                           child: Column(
+  //                             crossAxisAlignment: CrossAxisAlignment.start,
+  //                             children: [
+  //                               HelperRequestOffline.statusRequest(
+  //                                   request: request),
+  //                               TextRichWidget(
+  //                                   title: 'Placa',
+  //                                   subtitle: request
+  //                                       .dataSolicitud!.datosVehiculo!.placa!,
+  //                                   colorSubtitle: Colors.red),
+  //                               const TextRichWidget(
+  //                                   title: 'Proceso',
+  //                                   subtitle: 'Proc sin Emisión'),
+  //                               TextRichWidget(
+  //                                   title: 'Dirección',
+  //                                   subtitle:
+  //                                       request.dataSolicitud!.direccion!),
+  //                               TextRichWidget(
+  //                                   title: 'N° Teléfono',
+  //                                   subtitle: request.dataSolicitud!.telefono!),
+  //                             ],
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     );
+  //                   },
+  //                   body: Column(
+  //                     children: [
+  //                       fp.loadingInspection
+  //                           ? const Text(
+  //                               'Estimado usuario mientras carga la informacion no realice ninguna otra acción.',
+  //                               style: TextStyle(fontWeight: FontWeight.bold),
+  //                               textAlign: TextAlign.center)
+  //                           : const SizedBox(),
+  //                       const SizedBox(height: 5),
+  //                       Visibility(
+  //                         visible: (request.statusSolicitudRegistrada !=
+  //                                 HelperRequestOffline.loaded ||
+  //                             request.statusMultimediaRegistrada !=
+  //                                 HelperRequestOffline.loaded ||
+  //                             request.statusInspeccionRegistrada !=
+  //                                 HelperRequestOffline.loaded),
+  //                         child: ElevatedButton.icon(
+  //                           icon: fp.loadingInspection
+  //                               ? const RotatingIcon(icon: Icon(Icons.sync))
+  //                               : const Icon(Icons.upload_rounded),
+  //                           label: Text(fp.loadingInspection
+  //                               ? 'Cargando...'
+  //                               : HelperRequestOffline.nameButtonUploadRequest(
+  //                                   request: request)),
+  //                           onPressed: !fp.loadingInspection
+  //                               ? () async {
+  //                                   if (!fp.offline) {
+  //                                     fp.setLoadingInspection(true);
+  //                                     //await Future.delayed(Duration(seconds: 5));
+  //                                     int index = NewRequestPage
+  //                                         .listCreatingrequests
+  //                                         .indexWhere((item) =>
+  //                                             item.idSolicitudTemp ==
+  //                                             request.idSolicitudTemp);
+
+  //                                     if (request.idSolicitudServicio == 0) {
+  //                                       final response =
+  //                                           await _newRequestService
+  //                                               .registerRequest(
+  //                                                   context, request,
+  //                                                   viewAlertError: false);
+
+  //                                       if (!response.error &&
+  //                                           response.data != null) {
+  //                                         Helper.logger.i(
+  //                                             'la solicitud se registro correctamente');
+  //                                         idRequest =
+  //                                             response.data[0]["idSolicitud"];
+  //                                         currentStep =
+  //                                             1; //REVISAR SI SE USA ESTA VARIABLE
+  //                                         errorRegisterRequest = false;
+
+  //                                         if (index != -1) {
+  //                                           NewRequestPage
+  //                                                   .listCreatingrequests[index]
+  //                                                   .idSolicitudServicio =
+  //                                               idRequest;
+  //                                           NewRequestPage
+  //                                                   .listCreatingrequests[index]
+  //                                                   .statusSolicitudRegistrada =
+  //                                               HelperRequestOffline.loaded;
+  //                                           _offlineStorage
+  //                                               .saveCreatingRequests(
+  //                                                   value: NewRequestPage
+  //                                                       .listCreatingrequests);
+  //                                         }
+  //                                         setState(() {});
+  //                                       } else {
+  //                                         Helper.logger.e(
+  //                                             'Ocurrio un error al registrar la solicitud, guarda el error');
+  //                                         if (index != -1) {
+  //                                           NewRequestPage
+  //                                                   .listCreatingrequests[index]
+  //                                                   .statusSolicitudRegistrada =
+  //                                               HelperRequestOffline.error;
+  //                                           NewRequestPage
+  //                                                   .listCreatingrequests[index]
+  //                                                   .mensageErrorSolicitudRegistrar =
+  //                                               response.message;
+  //                                           _offlineStorage
+  //                                               .saveCreatingRequests(
+  //                                                   value: NewRequestPage
+  //                                                       .listCreatingrequests);
+  //                                         }
+  //                                         errorRegisterRequest = true;
+  //                                         fp.setLoadingInspection(false);
+  //                                         fp.dismissAlert();
+  //                                         setState(() {});
+  //                                       }
+  //                                     } else {
+  //                                       Helper.logger.w(
+  //                                           'esta solicitud ya fue registrada, tomar el id de la solicitud guardado en storage');
+  //                                       idRequest =
+  //                                           request.idSolicitudServicio!;
+  //                                       errorRegisterRequest = false;
+  //                                       setState(() {});
+  //                                     }
+
+  //                                     if (!errorRegisterRequest) {
+  //                                       if (request
+  //                                               .statusMultimediaRegistrada !=
+  //                                           HelperRequestOffline.loaded) {
+  //                                         bool loadMedia = await HelperRequestOffline
+  //                                             .loadMediaDataService(
+  //                                                 fp: fp,
+  //                                                 context: context,
+  //                                                 paramsLoadMedia: ParamsLoadMedia(
+  //                                                     idRequestReal: idRequest,
+  //                                                     idSolicitudTemp: request
+  //                                                         .idSolicitudTemp!));
+
+  //                                         if (!loadMedia) {
+  //                                           Helper.logger.i(
+  //                                               'la multimedia se subio correctamente');
+  //                                           errorLoadMedia = false;
+  //                                           currentStep =
+  //                                               2; //REVISAR SI SE USA ESTA VARIABLE
+  //                                           if (index != -1) {
+  //                                             NewRequestPage
+  //                                                     .listCreatingrequests[index]
+  //                                                     .statusMultimediaRegistrada =
+  //                                                 HelperRequestOffline.loaded;
+  //                                             _offlineStorage
+  //                                                 .saveCreatingRequests(
+  //                                                     value: NewRequestPage
+  //                                                         .listCreatingrequests);
+  //                                           }
+
+  //                                           if (request
+  //                                                   .statusInspeccionRegistrada ==
+  //                                               HelperRequestOffline.loaded) {
+  //                                             Helper.logger.w(
+  //                                                 'entro e elimino la informacion de la inspeccion, porque reintento enviar multimedia y esta cargada la informacion de la solicitud');
+  //                                             await InspectionStorage()
+  //                                                 .removeDataInspection(request
+  //                                                     .idSolicitudTemp
+  //                                                     .toString());
+  //                                           }
+
+  //                                           setState(() {});
+  //                                         } else {
+  //                                           fp.setLoadingInspection(false);
+  //                                           Helper.logger.w(
+  //                                               'ocurrio un error al registrar la multimedia, guarda error y continua');
+  //                                           errorLoadMedia =
+  //                                               false; //FALSO PORQUE CONTINUA CON EL PROCESO SI HAY ERROR
+  //                                           currentStep =
+  //                                               2; //REVISAR SI SE USA ESTA VARIABLE
+  //                                           if (index != -1) {
+  //                                             NewRequestPage
+  //                                                     .listCreatingrequests[index]
+  //                                                     .statusMultimediaRegistrada =
+  //                                                 HelperRequestOffline.error;
+  //                                             _offlineStorage
+  //                                                 .saveCreatingRequests(
+  //                                                     value: NewRequestPage
+  //                                                         .listCreatingrequests);
+  //                                           }
+  //                                           setState(() {});
+  //                                         }
+  //                                       }
+
+  //                                       //SIGUIENTE VALIDACION QUE CONTINUE SI HAY ERROR DE MULTIMEDIA O NO
+
+  //                                       if (!errorLoadMedia) {
+  //                                         if (request
+  //                                                 .statusInspeccionRegistrada !=
+  //                                             HelperRequestOffline.loaded) {
+  //                                           fp.setLoadingInspection(true);
+  //                                           final loadInformation =
+  //                                               await HelperRequestOffline
+  //                                                   .loadInformationRequestService(
+  //                                             context: context,
+  //                                             paramsLoadRequest: ParamsLoadRequest(
+  //                                                 errorMediaLoad: request
+  //                                                         .statusMultimediaRegistrada ==
+  //                                                     HelperRequestOffline
+  //                                                         .error,
+  //                                                 idRequestReal: idRequest,
+  //                                                 idSolicitudTemp:
+  //                                                     request.idSolicitudTemp!,
+  //                                                 paramsRequest: ParamsRequest(
+  //                                                     codEjecutivo: request
+  //                                                         .dataSolicitud!
+  //                                                         .ejecutivo!
+  //                                                         .codEjecutivo!,
+  //                                                     idAgencia: request
+  //                                                         .dataSolicitud!
+  //                                                         .idAgencia!,
+  //                                                     idBroker: request
+  //                                                         .dataSolicitud!
+  //                                                         .idBroker!,
+  //                                                     idProceso: request
+  //                                                         .dataSolicitud!
+  //                                                         .idProceso!,
+  //                                                     idSolicitud: request
+  //                                                         .idSolicitudTemp!,
+  //                                                     idTipoFlujo: request
+  //                                                         .dataSolicitud!
+  //                                                         .idTipoFlujo!,
+  //                                                     polizaMadre: request
+  //                                                         .dataSolicitud!
+  //                                                         .polizaMadre)),
+  //                                           );
+
+  //                                           if (!loadInformation.error) {
+  //                                             fp.setLoadingInspection(false);
+  //                                             Helper.logger.i(
+  //                                                 'la inspeccion se cargo y finalizo correctamente');
+  //                                             if (index != -1) {
+  //                                               NewRequestPage
+  //                                                       .listCreatingrequests[index]
+  //                                                       .statusInspeccionRegistrada =
+  //                                                   HelperRequestOffline.loaded;
+  //                                               NewRequestPage
+  //                                                       .listCreatingrequests[index]
+  //                                                       .messageInspectionRegistrada =
+  //                                                   loadInformation.data
+  //                                                       .toString();
+  //                                               _offlineStorage
+  //                                                   .saveCreatingRequests(
+  //                                                       value: NewRequestPage
+  //                                                           .listCreatingrequests);
+  //                                             }
+  //                                             setState(() {});
+  //                                           } else {
+  //                                             fp.setLoadingInspection(false);
+  //                                             Helper.logger.e(
+  //                                                 'ocurrio un error al finalizar la inspeccion');
+  //                                             fp.dismissAlert();
+  //                                             if (index != -1) {
+  //                                               NewRequestPage
+  //                                                       .listCreatingrequests[index]
+  //                                                       .statusInspeccionRegistrada =
+  //                                                   HelperRequestOffline.error;
+  //                                               NewRequestPage
+  //                                                       .listCreatingrequests[index]
+  //                                                       .mensageErrorRegistrarInspection =
+  //                                                   loadInformation.message;
+  //                                               _offlineStorage
+  //                                                   .saveCreatingRequests(
+  //                                                       value: NewRequestPage
+  //                                                           .listCreatingrequests);
+  //                                             }
+  //                                             setState(() {});
+  //                                           }
+  //                                         }
+  //                                       }
+  //                                     }
+
+  //                                     //ELIMINAR LA INFORMACION DEL ARREGLO DE INSPECCIONES OFFLINE
+  //                                     if (request.statusSolicitudRegistrada ==
+  //                                             HelperRequestOffline.loaded &&
+  //                                         request.statusMultimediaRegistrada ==
+  //                                             HelperRequestOffline.loaded &&
+  //                                         request.statusInspeccionRegistrada ==
+  //                                             HelperRequestOffline.loaded) {
+  //                                       Helper.logger.i(
+  //                                           'se elimino toda la informacion todo se envio correctamente...');
+  //                                       ReviewRequestPage
+  //                                           .listInspectionFinishedOffline
+  //                                           .removeWhere((e) =>
+  //                                               e.idSolicitud ==
+  //                                               request.idSolicitudTemp);
+  //                                       _offlineStorage
+  //                                           .saveInspectionFinishedOffline(
+  //                                               ReviewRequestPage
+  //                                                   .listInspectionFinishedOffline);
+  //                                       NewRequestPage.listCreatingrequests
+  //                                           .removeWhere((e) =>
+  //                                               e.idSolicitudTemp ==
+  //                                               request.idSolicitudTemp);
+  //                                       //NewRequestPage.listCreatingrequests.removeAt(index);
+  //                                       _offlineStorage.saveCreatingRequests(
+  //                                           value: NewRequestPage
+  //                                               .listCreatingrequests);
+  //                                       setState(() {});
+  //                                     }
+  //                                   } else {
+  //                                     Helper.snackBar(
+  //                                         context: context,
+  //                                         message:
+  //                                             'No tienes conexion a internet.',
+  //                                         colorSnackBar: Colors.red);
+  //                                   }
+  //                                 }
+  //                               : null,
+  //                         ),
+  //                       ),
+  //                       Theme(
+  //                         data: ThemeData(
+  //                             colorScheme: ColorScheme.light(
+  //                                 primary:
+  //                                     AppConfig.appThemeConfig.secondaryColor)),
+  //                         child: Stepper(
+  //                           physics: const NeverScrollableScrollPhysics(),
+  //                           controlsBuilder: (context, details) {
+  //                             return Row(
+  //                               children: [
+  //                                 if (currentStep != 0)
+  //                                   Visibility(
+  //                                     visible: false,
+  //                                     child: TextButton(
+  //                                       onPressed: details.onStepCancel,
+  //                                       child: const Text('Anterior'),
+  //                                     ),
+  //                                   ),
+  //                                 if (currentStep != 2)
+  //                                   Visibility(
+  //                                     visible: false,
+  //                                     child: TextButton(
+  //                                       onPressed: details.onStepContinue,
+  //                                       child: const Text('Siguiente'),
+  //                                     ),
+  //                                   ),
+  //                               ],
+  //                             );
+  //                           },
+  //                           currentStep: currentStep,
+  //                           //currentStep: fp.loadingInspection ? HelperRequestOffline.currentStep(request: request) : 2,
+  //                           onStepContinue: onStepContinue,
+  //                           onStepCancel: onStepCancel,
+  //                           onStepTapped: (step) => onStepTapped(step),
+  //                           steps: [
+  //                             Step(
+  //                               state: HelperRequestOffline.stepState(
+  //                                   status: request.statusSolicitudRegistrada!),
+  //                               isActive: HelperRequestOffline.isStepActive(
+  //                                   status: request.statusSolicitudRegistrada!),
+  //                               title: const Text('Registrar solicitud'),
+  //                               content: request.statusSolicitudRegistrada ==
+  //                                       HelperRequestOffline.error
+  //                                   ? Center(
+  //                                       child: Text(
+  //                                           request.mensageErrorSolicitudRegistrar ??
+  //                                               '',
+  //                                           style: HelperRequestOffline.styles(
+  //                                               color: Colors.red)))
+  //                                   : const SizedBox(),
+  //                             ),
+  //                             Step(
+  //                               state: HelperRequestOffline.stepState(
+  //                                   status:
+  //                                       request.statusMultimediaRegistrada!),
+  //                               isActive: HelperRequestOffline.isStepActive(
+  //                                   status:
+  //                                       request.statusMultimediaRegistrada!),
+  //                               title: const Text('Enviar multimedia'),
+  //                               content: request.statusMultimediaRegistrada ==
+  //                                       HelperRequestOffline.error
+  //                                   ? Center(
+  //                                       child: Text(
+  //                                           request.mensageErrorMultimedia ??
+  //                                               '',
+  //                                           style: HelperRequestOffline.styles(
+  //                                               color: Colors.red)))
+  //                                   : const SizedBox(),
+  //                             ),
+  //                             Step(
+  //                                 state: HelperRequestOffline.stepState(
+  //                                     status:
+  //                                         request.statusInspeccionRegistrada!),
+  //                                 isActive: HelperRequestOffline.isStepActive(
+  //                                     status:
+  //                                         request.statusInspeccionRegistrada!),
+  //                                 title: const Text(
+  //                                     'Enviar información de la inspección'),
+  //                                 content: Wrap(
+  //                                   children: [
+  //                                     request.statusInspeccionRegistrada ==
+  //                                             HelperRequestOffline.error
+  //                                         ? Center(
+  //                                             child: Padding(
+  //                                               padding:
+  //                                                   const EdgeInsets.all(10.0),
+  //                                               child: ElevatedButton.icon(
+  //                                                 style: ButtonStyle(
+  //                                                     backgroundColor:
+  //                                                         WidgetStateProperty
+  //                                                             .all(Colors.red)),
+  //                                                 label: const Text('Eliminar'),
+  //                                                 icon:
+  //                                                     const Icon(Icons.delete),
+  //                                                 onPressed: () {
+  //                                                   fp.showAlert(
+  //                                                       content: AlertConfirm(
+  //                                                     message:
+  //                                                         'Antes de eliminar verifique que la informacion se cargo correctamente, ¿Esta seguro de eliminar la información de esta solicitud locamente?',
+  //                                                     confirm: () async {
+  //                                                       Helper.logger.i(
+  //                                                           'se elimino toda la informacion');
+  //                                                       await InspectionStorage()
+  //                                                           .removeDataInspection(
+  //                                                               request
+  //                                                                   .idSolicitudTemp
+  //                                                                   .toString());
+  //                                                       ReviewRequestPage
+  //                                                           .listInspectionFinishedOffline
+  //                                                           .removeWhere((e) =>
+  //                                                               e.idSolicitud ==
+  //                                                               request
+  //                                                                   .idSolicitudTemp);
+  //                                                       _offlineStorage
+  //                                                           .saveInspectionFinishedOffline(
+  //                                                               ReviewRequestPage
+  //                                                                   .listInspectionFinishedOffline);
+  //                                                       NewRequestPage
+  //                                                           .listCreatingrequests
+  //                                                           .removeWhere((e) =>
+  //                                                               e.idSolicitudTemp ==
+  //                                                               request
+  //                                                                   .idSolicitudTemp);
+  //                                                       //NewRequestPage.listCreatingrequests.removeAt(index);
+  //                                                       _offlineStorage
+  //                                                           .saveCreatingRequests(
+  //                                                               value: NewRequestPage
+  //                                                                   .listCreatingrequests);
+  //                                                       setState(() {});
+  //                                                       fp.dismissAlert();
+  //                                                     },
+  //                                                   ));
+  //                                                 },
+  //                                               ),
+  //                                             ),
+  //                                           )
+  //                                         : SizedBox(),
+  //                                     Center(
+  //                                         child: Text(
+  //                                             request.mensageErrorRegistrarInspection ??
+  //                                                 'Ocurrio un error',
+  //                                             style:
+  //                                                 HelperRequestOffline.styles(
+  //                                                     color: Colors.red)))
+  //                                   ],
+  //                                 ))
+  //                           ],
+  //                         ),
+  //                       )
+  //                     ],
+  //                   ),
+  //                   isExpanded: _currentOpenIndex == index,
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     );
+  //   }).toList();
+  // }
 
   void onStepContinue() {
     setState(() {
@@ -970,7 +1456,7 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
   }
 
   Widget requestsOffline() {
-    Logger().w(NewRequestPage.listCreatingrequests);
+    // Logger().w(NewRequestPage.listCreatingrequests);
     return NewRequestPage.listCreatingrequests.isNotEmpty
         ? SingleChildScrollView(
             child: Padding(

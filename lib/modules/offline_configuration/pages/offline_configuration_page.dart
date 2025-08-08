@@ -367,7 +367,7 @@ class _OfflineConfigurationPageState extends State<OfflineConfigurationPage> {
                                                   .secondaryColor,
                                               fontSize: 12,
                                               fontWeight: FontWeight.w400)),
-                                      Text('Activar o Desactivar ',
+                                      Text(fp.activeBackground ? 'Activado' : 'Descativado',
                                           style: const TextStyle(
                                               color: Colors.black54,
                                               fontSize: 12,

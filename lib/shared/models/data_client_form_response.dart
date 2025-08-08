@@ -28,7 +28,7 @@ class DataClientForm {
   List<ListaGeneral> listaFPagos;
 
   factory DataClientForm.fromJson(Map<String, dynamic> json) => DataClientForm(
-    dateCreation: json["dateCreation"] ?? '',
+        dateCreation: json["dateCreation"] ?? '',
         listaGenero: List<ListaGeneral>.from(
             json["listaGenero"].map((x) => ListaGeneral.fromJson(x))),
         listaPais: List<ListaGeneral>.from(
@@ -51,7 +51,7 @@ class DataClientForm {
       );
 
   Map<String, dynamic> toJson() => {
-    "dateCreation": dateCreation,
+        "dateCreation": dateCreation,
         "listaGenero": List<dynamic>.from(listaGenero.map((x) => x.toJson())),
         "listaPais": List<dynamic>.from(listaPais.map((x) => x.toJson())),
         "listaEstadoCivil":
@@ -73,19 +73,23 @@ class ListaGeneral {
   ListaGeneral({
     required this.codigo,
     required this.descripcion,
+    this.isNatural = true,
   });
 
   String codigo;
   String descripcion;
+  bool isNatural;
 
   factory ListaGeneral.fromJson(Map<String, dynamic> json) => ListaGeneral(
         codigo: json["codigo"],
         descripcion: json["descripcion"],
+        isNatural: json["isNatural"] ?? true
       );
 
   Map<String, dynamic> toJson() => {
         "codigo": codigo,
         "descripcion": descripcion,
+        "isNatural": isNatural
       };
 }
 
@@ -336,12 +340,11 @@ class ListaLocalidad {
 }
 
 class ListaRamo {
-  ListaRamo({
-    required this.codigo,
-    required this.descripcion,
-    this.estado,
-    this.anioAntiguedad
-  });
+  ListaRamo(
+      {required this.codigo,
+      required this.descripcion,
+      this.estado,
+      this.anioAntiguedad});
 
   String codigo;
   String descripcion;
@@ -349,11 +352,10 @@ class ListaRamo {
   int? anioAntiguedad;
 
   factory ListaRamo.fromJson(Map<String, dynamic> json) => ListaRamo(
-        codigo: json["codigo"],
-        descripcion: json["descripcion"],
-        estado: json["estado"],
-        anioAntiguedad: json["anio_antiguedad"] ?? ''
-      );
+      codigo: json["codigo"],
+      descripcion: json["descripcion"],
+      estado: json["estado"],
+      anioAntiguedad: json["anio_antiguedad"] ?? '');
 
   Map<String, dynamic> toJson() => {
         "codigo": codigo,

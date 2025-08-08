@@ -543,12 +543,15 @@ class _TakePicVideoState extends State<TakePicVideo>
           _successUploadingProcess();
           _updateStatusMedia('UPLOADED', null);
         }
-        setState(() {});
       } catch (error, stackTrace) {
         FirebaseCrashlytics.instance.recordError(error, stackTrace,
             reason: 'Error en _retryVideo', fatal: false);
-        setState(() {});
+        // setState(() {});
       }
+        if(context.mounted){
+
+        setState(() {});
+        }
     };
   }
 
@@ -649,10 +652,9 @@ class _TakePicVideoState extends State<TakePicVideo>
                   // XFile? choosenImage;
                   // choosenImage = await _openNativeCameraPhoto();
                   _takePhoto(idArchiveType, description, generic.Camera.widget);
-                  
                 },
                 splashColor:
-                    AppConfig.appThemeConfig.primaryColor.withOpacity(  0.5),
+                    AppConfig.appThemeConfig.primaryColor.withOpacity(0.5),
                 child: Ink(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -692,7 +694,7 @@ class _TakePicVideoState extends State<TakePicVideo>
                   fp.showAlert(content: AlertShowImage(imagePath: path));
                 },
                 splashColor:
-                    AppConfig.appThemeConfig.primaryColor.withOpacity( 0.5),
+                    AppConfig.appThemeConfig.primaryColor.withOpacity(0.5),
                 child: Ink(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -733,7 +735,7 @@ class _TakePicVideoState extends State<TakePicVideo>
                   }
                 },
                 splashColor:
-                    AppConfig.appThemeConfig.primaryColor.withOpacity( 0.5),
+                    AppConfig.appThemeConfig.primaryColor.withOpacity(0.5),
                 child: Ink(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -779,7 +781,7 @@ class _TakePicVideoState extends State<TakePicVideo>
     choosenImageVideo = choosenImage;
     //? 1. COMPRIMIMOS MEDIA - IMAGE
     Logger().w('Imagen path_' + choosenImage.path);
-    
+
     mediaCompressing = true;
     final imageCompressed = await _compressImage(choosenImageVideo!);
     if (imageCompressed != null) {
@@ -810,7 +812,10 @@ class _TakePicVideoState extends State<TakePicVideo>
     } else {
       _updateStatusMedia("COMPRESS_FAILED", null);
     }
+    if(context.mounted){
+
     setState(() {});
+    }
   }
   // );
 
@@ -841,28 +846,27 @@ class _TakePicVideoState extends State<TakePicVideo>
   Future<void> _verifyCache(int idArchiveType, String typeMedia) async {
     final mediaStoraged =
         await MediaDataStorage().getMediaData(widget.idRequest);
-      if(mediaStoraged != null){
-
-    final mediaData = mediaStoraged
-        .firstWhere((m) => m.idArchiveType == widget.idArchiveType);
-    debugPrint('arcihvo: ${mediaData.status} - ${mediaData.isRequired}');
-    if (mediaData.path != null) {
-      var exist = await File(mediaData.path!).exists();
-      if (exist) {
-        await File(mediaData.path!).delete();
+    if (mediaStoraged != null) {
+      final mediaData = mediaStoraged
+          .firstWhere((m) => m.idArchiveType == widget.idArchiveType);
+      debugPrint('arcihvo: ${mediaData.status} - ${mediaData.isRequired}');
+      if (mediaData.path != null) {
+        var exist = await File(mediaData.path!).exists();
+        if (exist) {
+          await File(mediaData.path!).delete();
+        }
+        mediaData.path = null;
+        mediaData.status = 'NO_MEDIA';
+        choosenImageVideo = null;
+        await _updateStatusMedia(
+          'NO_MEDIA',
+          null,
+        );
+        debugPrint('cambio el estatus');
+        setState(() {});
+        _checkIfFormIsComplete();
       }
-      mediaData.path = null;
-      mediaData.status = 'NO_MEDIA';
-      choosenImageVideo = null;
-      await _updateStatusMedia(
-        'NO_MEDIA',
-        null,
-      );
-      debugPrint('cambio el estatus');
-      setState(() {});
-      _checkIfFormIsComplete();
     }
-      }
   }
 
   //? Muestra las opciones de video (grabar o seleccionar)
@@ -1026,6 +1030,7 @@ class _TakePicVideoState extends State<TakePicVideo>
     }
     setState(() {});
   }
+
   Future _videoGeneralProcess(XFile choosenVideo, int idArchiveType) async {
     //AQUI SE GUARDA EL VIDEO SUPUESTAMENTE
 
@@ -1088,10 +1093,10 @@ class _TakePicVideoState extends State<TakePicVideo>
   }) async {
     try {
       final fp = Provider.of<FunctionalProvider>(context, listen: false);
-      if(!fp.offline){
-         MediaType mediaType = (widget.typeMedia == 'photo')
-          ? MediaType('image', 'jpg')
-          : MediaType('video', 'mp4');
+      if (!fp.offline) {
+        MediaType mediaType = (widget.typeMedia == 'photo')
+            ? MediaType('image', 'jpg')
+            : MediaType('video', 'mp4');
 
         final response = await MediaService().uploadMedia(
           context: context,
@@ -1103,19 +1108,23 @@ class _TakePicVideoState extends State<TakePicVideo>
           mediaType: mediaType,
           showAlertError: false,
           onProgressLoad: ((p0, p1) {
+            if(context.mounted){
+
             setState(() {
               cantBytes = p0;
               cantTotalBytes = p1;
             });
+            }
           }),
         );
 
         log(jsonEncode(response));
 
         return response;
-      }else{
+      } else {
         //Helper.snackBar(context: context, colorSnackBar: Colors.red, message: 'No tienes conexión a internet, porque estas en modo offline.');
-        return GeneralResponse(message: 'no cuentas con conexión a internet.', error: true);
+        return GeneralResponse(
+            message: 'no cuentas con conexión a internet.', error: true);
       }
     } catch (error, stackTrace) {
       FirebaseCrashlytics.instance.recordError(error, stackTrace,
@@ -1144,6 +1153,7 @@ class _TakePicVideoState extends State<TakePicVideo>
       {String? path}) async {
     final mediaStoraged =
         await MediaDataStorage().getMediaData(widget.idRequest);
+    // Logger().w(mediaStoraged?.length);
     final mediaData = mediaStoraged!
         .firstWhere((m) => m.idArchiveType == widget.idArchiveType);
     switch (status) {
@@ -1171,12 +1181,12 @@ class _TakePicVideoState extends State<TakePicVideo>
         mediaData.status = 'UPLOADED_FAILED';
         break;
       case 'UPLOADED':
-      //  File(mediaData.path!).delete();
+        //  File(mediaData.path!).delete();
         // mediaData.data = null;
         mediaData.status = 'UPLOADED';
 
         break;
-      
+
       case 'VERIFY':
         break;
       case 'RECORDED':
@@ -1198,8 +1208,11 @@ class _TakePicVideoState extends State<TakePicVideo>
     final mediaStoraged =
         await MediaDataStorage().getMediaData(widget.idRequest);
     var mediaIncomplete = false;
-    for (var media in mediaStoraged!) {
-      debugPrint('verify form ${media.type}:${media.isRequired} - ${media.status}');
+    if(mediaStoraged != null){
+
+    for (var media in mediaStoraged) {
+      debugPrint(
+          'verify form ${media.type}:${media.isRequired} - ${media.status}');
       if (media.status == 'RECORDED') {
         mediaIncomplete = true;
       }
@@ -1209,6 +1222,7 @@ class _TakePicVideoState extends State<TakePicVideo>
         debugPrint('Incompleto');
       }
     }
+    }
     final mfp = Provider.of<MediaFormProvider>(contexSend, listen: false);
     if (!mediaIncomplete) {
       debugPrint('media completa');
@@ -1217,144 +1231,145 @@ class _TakePicVideoState extends State<TakePicVideo>
       debugPrint('media incompleta');
       mfp.formCompleted = false;
     }
-    setState(() {
-      
-    });
+    setState(() {});
   }
 
   //? Compresion de imagenes
   Future<Uint8List>? _compressImage(XFile file) async {
-
     final tempDir = await getExternalStorageDirectory();
     // var path = tempDir.path;
     //  var lastSeparator = file.path.lastIndexOf(Platform.pathSeparator);
 
     //  var newPath = path.substring(0, lastSeparator + 1) +
     //             '${widget.idRequest}_${widget.idArchiveType}.jpg';
-  //  File file = await File('${tempDir?.path}/${widget.idRequest}_${widget.idArchiveType}.jpg').create();
-  //   file.absolute.createSync(recursive: true);
+    //  File file = await File('${tempDir?.path}/${widget.idRequest}_${widget.idArchiveType}.jpg').create();
+    //   file.absolute.createSync(recursive: true);
     Logger().w(tempDir?.path ?? '');
-    var result = await FlutterImageCompress.compressWithFile(file.path,
-        quality: 40, rotate: 0,);
-    if(tempDir != null){
-     final file = File(tempDir.path+'/${widget.idRequest}_${widget.idArchiveType}.jpg');
-     file.writeAsBytesSync(result?.buffer.asInt8List() ?? []);
+    var result = await FlutterImageCompress.compressWithFile(
+      file.path,
+      quality: 40,
+      rotate: 0,
+    );
+    if (tempDir != null) {
+      final file = File(
+          tempDir.path + '/${widget.idRequest}_${widget.idArchiveType}.jpg');
+      file.writeAsBytesSync(result?.buffer.asInt8List() ?? []);
       final result1 = List<int>.from(result!);
-     file.writeAsBytesSync(result1);
-    Logger().w(file.path);
-    choosenImageVideo = XFile(file.path);
+      file.writeAsBytesSync(result1);
+      Logger().w(file.path);
+      choosenImageVideo = XFile(file.path);
     }
     return result!;
   }
 
-
-Future<File?> _compressVideo(XFile file) async {
-  if (!Platform.isAndroid) return null;
-
-  try {
-    // Validar archivo de entrada
-    final originalFile = File(file.path);
-    // if (!await originalFile.exists() || file.path.isEmpty) {
-    //   Logger().e('Archivo de entrada inválido o no existe: ${file.path}');
-    //   _updateStatusMedia('COMPRESS_FAILED', null, path: file.path);
-    //   return null;
-    // }
-
-    // Verificar tamaño del archivo para prevenir OutOfMemoryError
-    // final fileSize = await originalFile.length();
-    // Logger().w('Tamaño del video: $fileSize bytes');
-    // const maxFileSize = 500 * 1024 * 1024; // 500 MB
-    // if (fileSize > maxFileSize) {
-    //   Logger().e('Archivo demasiado grande: $fileSize bytes');
-    //   _updateStatusMedia('COMPRESS_FAILED', null, path: file.path);
-    //   return null;
-    // }
-
-    // Configurar suscripción para progreso
-    final subscription = vc.VideoCompress.compressProgress$.subscribe((progress) {
-      setState(() {
-        compressionProcess = progress.toStringAsFixed(2);
-      });
-    });
+  Future<File?> _compressVideo(XFile file) async {
+    if (!Platform.isAndroid) return null;
 
     try {
-      // Comprimir video
-      final result = await vc.VideoCompress.compressVideo(
-        file.path,
-        frameRate: 15,
-      );
-
-      // Limpiar suscripción
-      subscription.unsubscribe();
-
-      // Validar resultado
-      if (result == null || result.path == null || result.path!.isEmpty) {
-        Logger().e('Compresión fallida: resultado nulo o ruta vacía');
-        _updateStatusMedia('COMPRESS_FAILED', null, path: file.path);
-        return null;
-      }
-
-      final compressedFile = File(result.path!);
-      // if (!await compressedFile.exists()) {
-      //   Logger().e('Archivo comprimido no existe: ${result.path}');
+      // Validar archivo de entrada
+      final originalFile = File(file.path);
+      // if (!await originalFile.exists() || file.path.isEmpty) {
+      //   Logger().e('Archivo de entrada inválido o no existe: ${file.path}');
       //   _updateStatusMedia('COMPRESS_FAILED', null, path: file.path);
       //   return null;
       // }
 
-      // Verificar tamaño del archivo comprimido
-      final compressedSize = await compressedFile.length();
-      if (compressedSize == 0) {
-        Logger().e('Archivo comprimido tiene 0 bytes: ${result.path}');
-        _updateStatusMedia('COMPRESS_FAILED', null, path: file.path);
-        await compressedFile.delete();
-        return null;
-      }
+      // Verificar tamaño del archivo para prevenir OutOfMemoryError
+      // final fileSize = await originalFile.length();
+      // Logger().w('Tamaño del video: $fileSize bytes');
+      // const maxFileSize = 500 * 1024 * 1024; // 500 MB
+      // if (fileSize > maxFileSize) {
+      //   Logger().e('Archivo demasiado grande: $fileSize bytes');
+      //   _updateStatusMedia('COMPRESS_FAILED', null, path: file.path);
+      //   return null;
+      // }
 
-      // Renombrar archivo
-      final lastSeparator = result.path!.lastIndexOf(Platform.pathSeparator);
-      if (lastSeparator == -1) {
-        Logger().e('Ruta inválida para renombrar: ${result.path}');
-        _updateStatusMedia('COMPRESS_FAILED', null, path: file.path);
-        await compressedFile.delete();
-        return null;
-      }
-      final newPath =
-          '${result.path!.substring(0, lastSeparator + 1)}${widget.idRequest}_${widget.idArchiveType}.mp4';
-      final newFile = await compressedFile.rename(newPath);
+      // Configurar suscripción para progreso
+      final subscription =
+          vc.VideoCompress.compressProgress$.subscribe((progress) {
+        setState(() {
+          compressionProcess = progress.toStringAsFixed(2);
+        });
+      });
 
-      // Eliminar archivo original
       try {
-        await originalFile.delete();
-        Logger().w('Archivo original eliminado: ${originalFile.path}');
-        Logger().w('Nuevo archivo: ${newFile.path}');
-      } catch (e) {
-        Logger().w('No se pudo eliminar el archivo original: $e');
-      }
+        // Comprimir video
+        final result = await vc.VideoCompress.compressVideo(
+          file.path,
+          frameRate: 15,
+        );
 
-      // Restablecer estado
+        // Limpiar suscripción
+        subscription.unsubscribe();
+
+        // Validar resultado
+        if (result == null || result.path == null || result.path!.isEmpty) {
+          Logger().e('Compresión fallida: resultado nulo o ruta vacía');
+          _updateStatusMedia('COMPRESS_FAILED', null, path: file.path);
+          return null;
+        }
+
+        final compressedFile = File(result.path!);
+        // if (!await compressedFile.exists()) {
+        //   Logger().e('Archivo comprimido no existe: ${result.path}');
+        //   _updateStatusMedia('COMPRESS_FAILED', null, path: file.path);
+        //   return null;
+        // }
+
+        // Verificar tamaño del archivo comprimido
+        final compressedSize = await compressedFile.length();
+        if (compressedSize == 0) {
+          Logger().e('Archivo comprimido tiene 0 bytes: ${result.path}');
+          _updateStatusMedia('COMPRESS_FAILED', null, path: file.path);
+          await compressedFile.delete();
+          return null;
+        }
+
+        // Renombrar archivo
+        final lastSeparator = result.path!.lastIndexOf(Platform.pathSeparator);
+        if (lastSeparator == -1) {
+          Logger().e('Ruta inválida para renombrar: ${result.path}');
+          _updateStatusMedia('COMPRESS_FAILED', null, path: file.path);
+          await compressedFile.delete();
+          return null;
+        }
+        final newPath =
+            '${result.path!.substring(0, lastSeparator + 1)}${widget.idRequest}_${widget.idArchiveType}.mp4';
+        final newFile = await compressedFile.rename(newPath);
+
+        // Eliminar archivo original
+        try {
+          await originalFile.delete();
+          Logger().w('Archivo original eliminado: ${originalFile.path}');
+          Logger().w('Nuevo archivo: ${newFile.path}');
+        } catch (e) {
+          Logger().w('No se pudo eliminar el archivo original: $e');
+        }
+
+        // Restablecer estado
+        setState(() {
+          compressionProcess = '0.00';
+        });
+
+        return newFile;
+      } finally {
+        // Asegurar que la suscripción se limpie incluso si hay un error
+        subscription.unsubscribe();
+      }
+    } catch (error, stackTrace) {
+      FirebaseCrashlytics.instance.recordError(
+        error,
+        stackTrace,
+        reason: 'Error en _compressVideo: $error',
+        fatal: false,
+      );
+      _updateStatusMedia('COMPRESS_FAILED', null, path: file.path);
       setState(() {
         compressionProcess = '0.00';
       });
-
-      return newFile;
-    } finally {
-      // Asegurar que la suscripción se limpie incluso si hay un error
-      subscription.unsubscribe();
+      return null;
     }
-  } catch (error, stackTrace) {
-    FirebaseCrashlytics.instance.recordError(
-      error,
-      stackTrace,
-      reason: 'Error en _compressVideo: $error',
-      fatal: false,
-    );
-    _updateStatusMedia('COMPRESS_FAILED', null, path: file.path);
-    setState(() {
-      compressionProcess = '0.00';
-    });
-    return null;
   }
-}
 
   // Future<File?> _compressVideo(XFile file) async {
   //   try {
@@ -1474,13 +1489,13 @@ Future<File?> _compressVideo(XFile file) async {
   //   }
   //   return File(file.path);
   // }
-
 }
 
 class CameraPage extends StatefulWidget {
   final int idTypeArchive;
   final int durationVideo;
-  const CameraPage({super.key, required this.durationVideo, required this.idTypeArchive});
+  const CameraPage(
+      {super.key, required this.durationVideo, required this.idTypeArchive});
 
   @override
   State<CameraPage> createState() => _CameraPageState();
@@ -1527,11 +1542,10 @@ class _CameraPageState extends State<CameraPage> {
 
   @override
   void dispose() {
-    if(mounted){
-
-    BackButtonInterceptor.removeByName('camera');
-    _cameraController.dispose();
-    _timer?.cancel();
+    if (mounted) {
+      BackButtonInterceptor.removeByName('camera');
+      _cameraController.dispose();
+      _timer?.cancel();
     }
     super.dispose();
   }
@@ -1550,9 +1564,9 @@ class _CameraPageState extends State<CameraPage> {
 
   _recordVideo() async {
     if (_isRecording) {
-    if(_remainingTime == 0){
-      return;
-    }
+      if (_remainingTime == 0) {
+        return;
+      }
       _timer!.cancel();
       _remainingTime = 0;
       final file = await _cameraController.stopVideoRecording();
@@ -1572,19 +1586,18 @@ class _CameraPageState extends State<CameraPage> {
       await _cameraController.startVideoRecording();
       await Future.delayed(Duration(seconds: widget.durationVideo));
       Helper.logger.w('hace esto');
-      if(mounted){
-
-      final file = await _cameraController.stopVideoRecording();
-      _timer!.cancel();
-      _remainingTime = 0;
-      setState(() => _isRecording = false);
-      final route = MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (_) => VideoPage(
-          filePath: file.path,
-        ),
-      );
-      Navigator.push(context, route);
+      if (mounted) {
+        final file = await _cameraController.stopVideoRecording();
+        _timer!.cancel();
+        _remainingTime = 0;
+        setState(() => _isRecording = false);
+        final route = MaterialPageRoute(
+          fullscreenDialog: true,
+          builder: (_) => VideoPage(
+            filePath: file.path,
+          ),
+        );
+        Navigator.push(context, route);
       }
 
       // Future.delayed(
@@ -1645,7 +1658,7 @@ class _CameraPageState extends State<CameraPage> {
                     ),
                   ),
                 ),
-               Padding(
+                Padding(
                   padding: const EdgeInsets.all(25),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -1671,14 +1684,13 @@ class _CameraPageState extends State<CameraPage> {
                             _cameraController.setFlashMode(FlashMode.off);
                             _flashActive = false;
                           }
-                          setState(() {
-                            
-                          });
+                          setState(() {});
                         },
                       ),
                     ],
                   ),
-                ),              ],
+                ),
+              ],
             ),
           )
         ]),

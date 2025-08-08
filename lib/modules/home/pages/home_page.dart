@@ -51,9 +51,9 @@ class _HomePageState extends State<HomePage> {
     _getMyName();
     _getUserStorage();
     // streamStatusPendingMedia();
-    if(fp.activeBackground){
+    // if(fp.activeBackground){
        Helper.startBackgroundService();
-    }
+    // }
 
     log(ReviewRequestPage.listInspectionFinishedOffline.length.toString());
 

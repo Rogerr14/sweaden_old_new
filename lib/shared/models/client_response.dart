@@ -78,7 +78,12 @@ class Persona {
       required this.mensaje,
       required this.patrimonio,
       required this.direccionEmpresa,
-      required this.telEmpresa});
+      required this.telEmpresa,
+      required this.codProvincia,
+      required this.codLocalidad,
+      required this.codActividad,
+      required this.activos,
+      required this.pasivos});
 
   String? nombre;
   String email;
@@ -96,8 +101,8 @@ class Persona {
   String? tipoVehiculo;
   String? motorVehiculo;
   String? chasisVehiculo;
-  String apellido1;
-  String apellido2;
+  String? apellido1;
+  String? apellido2;
   String nombre1;
   String nombre2;
   String fechaNacimiento;
@@ -138,6 +143,11 @@ class Persona {
   String? patrimonio;
   String? direccionEmpresa;
   String? telEmpresa;
+  String? codProvincia;
+  String? codLocalidad;
+  String? codActividad;
+  int? activos;
+  int? pasivos;
 
   factory Persona.fromJson(Map<String, dynamic> json) => Persona(
         nombre: json["nombre"],
@@ -198,6 +208,11 @@ class Persona {
         patrimonio: json["patrimonio"],
         direccionEmpresa: json["direccion_empresa"],
         telEmpresa: json["tel_empresa"],
+        codActividad: json["codActividad"],
+        codLocalidad: json["codLocalidad"],
+        codProvincia: json["codProvincia"],
+        pasivos: json["pasivos"],
+        activos: json["activos"]
       );
 
   Map<String, dynamic> toJson() => {
@@ -259,5 +274,10 @@ class Persona {
         "patrimonio": patrimonio,
         "direccion_empresa": direccionEmpresa,
         "tel_empresa": telEmpresa,
+        "codActividad": codActividad,
+        "codLocalidad":codLocalidad,
+        "codProvincia" : codProvincia,
+        "pasivos" : pasivos,
+        "activos" : activos
       };
 }

@@ -399,11 +399,12 @@ class Helper {
 
   static final logger = Logger(
       printer: PrettyPrinter(
-          methodCount: 0,
-          errorMethodCount: 8,
-          lineLength: 120,
-          colors: true,
-          printEmojis: false,));
+    methodCount: 0,
+    errorMethodCount: 8,
+    lineLength: 120,
+    colors: true,
+    printEmojis: false,
+  ));
 
   static String getCurrentDateAndTime() {
     DateTime now = DateTime.now();
@@ -446,7 +447,7 @@ class Helper {
         return false;
       }
     } catch (e) {
-      Helper.logger.w('no tienes acceso a internet');
+      Helper.logger.w('no tienes acceso a internet, $e');
       return false;
     }
   }
@@ -783,7 +784,7 @@ class Helper {
       log('******************** Conexión a internet por datos móviles ********************');
     } else if (connectivityResult.contains(ConnectivityResult.wifi)) {
       log('******************** Conexión a internet por red inalámbrica Wifi ********************');
-    } else if (connectivityResult.contains( ConnectivityResult.vpn)) {
+    } else if (connectivityResult.contains(ConnectivityResult.vpn)) {
       var envStr = AppConfig.appEnv.environmentName;
       connectionValidate =
           (envStr == 'DEV' || envStr == 'QA') ? await _checkInternet(1) : false;
@@ -791,11 +792,11 @@ class Helper {
       // Note for iOS and macOS:
       // There is no separate network interface type for [vpn].
       // It returns [other] on any device (also simulator)
-    } else if (connectivityResult.contains( ConnectivityResult.bluetooth)) {
+    } else if (connectivityResult.contains(ConnectivityResult.bluetooth)) {
       log('******************** Conexión a internet por red inalámbrica Bluetooth ********************');
-    } else if (connectivityResult .contains( ConnectivityResult.other)) {
+    } else if (connectivityResult.contains(ConnectivityResult.other)) {
       log('******************** Conectado a internet ********************');
-    } else if (connectivityResult .contains( ConnectivityResult.none)) {
+    } else if (connectivityResult.contains(ConnectivityResult.none)) {
       log('******************** No conectado a internet ********************');
       connectionValidate = false;
     }
@@ -889,7 +890,12 @@ class Helper {
     Timer.periodic(const Duration(minutes: 3), (timer) async {
       bool offline = false;
       offline = await checkConnection();
-      (offline ? initsubprocess() : null);
+      bool active = await UserDataStorage().getActiveBackground();
+      (offline
+          ? (active)
+              ? initsubprocess()
+              : null
+          : null);
     });
   }
 
@@ -910,159 +916,200 @@ class Helper {
 //---------------------------------------------------------
 //Correccion de memoria Prueba
 
-Future<void> _processUploadInspecctionOffline() async {
-  List<Request> request = await OfflineStorage().getCreatingRequests();
-  final listInspectionFinishedOffline = await OfflineStorage().getInspectionFinishedOffline();
-  List<Lista> listInspectionOfline = listInspectionFinishedOffline?.first.lista ?? [];
+  Future<void> _processUploadInspecctionOffline() async {
+    List<Request> request = await OfflineStorage().getCreatingRequests();
+    final listInspectionFinishedOffline =
+        await OfflineStorage().getInspectionFinishedOffline();
+    List<Lista> listInspectionOfline =
+        listInspectionFinishedOffline?.first.lista ?? [];
 
-  Helper.logger.i('Procesando: ${Helper.isProcessing}');
-  if (!Helper.isProcessing) {
-    Helper.isProcessing = true;
-    if (listInspectionOfline.isNotEmpty && request.isNotEmpty) {
-      // Crear copia profunda
-      List<Request> requestCopy = request.map((r) => Request.fromJson(r.toJson())).toList();
-      for (var i = 0; i < requestCopy.length; i += 10) {
-        final batch = requestCopy.sublist(i, i + 10 < requestCopy.length ? i + 10 : requestCopy.length);
-        for (Request inspectionRequest in batch) {
-          bool errorRegisterRequest = false;
-          bool errorLoadMedia = false;
+    Helper.logger.i('Procesando: ${Helper.isProcessing}');
+    if (!Helper.isProcessing) {
+      Helper.isProcessing = true;
+      if (listInspectionOfline.isNotEmpty && request.isNotEmpty) {
+        // Crear copia profunda
+        List<Request> requestCopy =
+            request.map((r) => Request.fromJson(r.toJson())).toList();
+        for (var i = 0; i < requestCopy.length; i += 10) {
+          final batch = requestCopy.sublist(
+              i, i + 10 < requestCopy.length ? i + 10 : requestCopy.length);
+          for (Request inspectionRequest in batch) {
+            bool errorRegisterRequest = false;
+            bool errorLoadMedia = false;
 
-          if (inspectionRequest.idSolicitudServicio == 0) {
-            final response = await NewRequestService().registerRequest(
-              null,
-              inspectionRequest,
-              viewAlertError: false,
-            );
-
-            if (!response.error && response.data != null) {
-              Helper.logger.i('Solicitud registrada correctamente');
-              inspectionRequest.idSolicitudServicio = response.data[0]["idSolicitud"];
-              inspectionRequest.statusSolicitudRegistrada = HelperRequestOffline.loaded;
-              await OfflineStorage().saveCreatingRequests(value: requestCopy);
-            } else {
-              Helper.logger.e('Error al registrar solicitud: ${response.message}');
-              inspectionRequest.statusSolicitudRegistrada = HelperRequestOffline.error;
-              inspectionRequest.mensageErrorSolicitudRegistrar = response.message;
-              await OfflineStorage().saveCreatingRequests(value: requestCopy);
-              errorRegisterRequest = true;
-            }
-          } else {
-            Helper.logger.w('Solicitud ya registrada');
-            errorRegisterRequest = false;
-          }
-
-          if (!errorRegisterRequest && inspectionRequest.statusMultimediaRegistrada != HelperRequestOffline.loaded) {
-            bool loadMedia = await HelperRequestOffline.loadMediaDataService(
-              fp: null,
-              context: null,
-              paramsLoadMedia: ParamsLoadMedia(
-                idRequestReal: inspectionRequest.idSolicitudServicio!,
-                idSolicitudTemp: inspectionRequest.idSolicitudTemp!,
-              ),
-            );
-
-            if (loadMedia) {
-              Helper.logger.i('Multimedia subida correctamente');
-              inspectionRequest.statusMultimediaRegistrada = HelperRequestOffline.loaded;
-              await OfflineStorage().saveCreatingRequests(value: requestCopy);
-            } else {
-              Helper.logger.w('Error al registrar multimedia');
-              inspectionRequest.statusMultimediaRegistrada = HelperRequestOffline.error;
-              await OfflineStorage().saveCreatingRequests(value: requestCopy);
-              errorLoadMedia = true;
-            }
-          }
-
-          if (!errorLoadMedia && inspectionRequest.statusInspeccionRegistrada != HelperRequestOffline.loaded) {
-            final loadInformation = await HelperRequestOffline.loadInformationRequestService(
-              context: null,
-              paramsLoadRequest: ParamsLoadRequest(
-                errorMediaLoad: inspectionRequest.statusMultimediaRegistrada == HelperRequestOffline.error,
-                idRequestReal: inspectionRequest.idSolicitudServicio!,
-                idSolicitudTemp: inspectionRequest.idSolicitudTemp!,
-                paramsRequest: ParamsRequest(
-                  codEjecutivo: inspectionRequest.dataSolicitud!.ejecutivo!.codEjecutivo!,
-                  idAgencia: inspectionRequest.dataSolicitud!.idAgencia!,
-                  idBroker: inspectionRequest.dataSolicitud!.idBroker!,
-                  idProceso: inspectionRequest.dataSolicitud!.idProceso!,
-                  idSolicitud: inspectionRequest.idSolicitudTemp!,
-                  idTipoFlujo: inspectionRequest.dataSolicitud!.idTipoFlujo!,
-                  polizaMadre: inspectionRequest.dataSolicitud!.polizaMadre,
-                ),
-              ),
-            );
-
-            if (!loadInformation.error) {
-              Helper.logger.i('Inspección finalizada correctamente');
-              inspectionRequest.statusInspeccionRegistrada = HelperRequestOffline.loaded;
-              inspectionRequest.messageInspectionRegistrada = loadInformation.data.toString();
-              await OfflineStorage().saveCreatingRequests(value: requestCopy);
-            } else {
-              Helper.logger.e('Error al finalizar inspección: ${loadInformation.message}');
-              inspectionRequest.statusInspeccionRegistrada = HelperRequestOffline.error;
-              inspectionRequest.mensageErrorRegistrarInspection = loadInformation.message;
-              await OfflineStorage().saveCreatingRequests(value: requestCopy);
-              await InspectionStorage().removeDataInspection(inspectionRequest.idSolicitudTemp.toString());
-              ReviewRequestPage.listInspectionFinishedOffline.removeWhere(
-                (e) => e.idSolicitud == inspectionRequest.idSolicitudTemp,
+            if (inspectionRequest.idSolicitudServicio == 0) {
+              final response = await NewRequestService().registerRequest(
+                null,
+                inspectionRequest,
+                viewAlertError: false,
               );
-              await OfflineStorage().saveInspectionFinishedOffline(ReviewRequestPage.listInspectionFinishedOffline);
+
+              if (!response.error && response.data != null) {
+                Helper.logger.i('Solicitud registrada correctamente');
+                inspectionRequest.idSolicitudServicio =
+                    response.data[0]["idSolicitud"];
+                log("inspecction ren id: ${response.data[0]["estadoInspeccion"]}");
+                inspectionRequest.statusSolicitudRegistrada =
+                    HelperRequestOffline.loaded;
+                await OfflineStorage().saveCreatingRequests(value: requestCopy);
+              } else {
+                Helper.logger
+                    .e('Error al registrar solicitud: ${response.message}');
+                inspectionRequest.statusSolicitudRegistrada =
+                    HelperRequestOffline.error;
+                inspectionRequest.mensageErrorSolicitudRegistrar =
+                    response.message;
+                await OfflineStorage().saveCreatingRequests(value: requestCopy);
+                errorRegisterRequest = true;
+              }
+            } else {
+              Helper.logger.w('Solicitud ya registrada');
+              errorRegisterRequest = false;
+            }
+
+            if (!errorRegisterRequest &&
+                inspectionRequest.statusMultimediaRegistrada !=
+                    HelperRequestOffline.loaded) {
+              bool loadMedia = await HelperRequestOffline.loadMediaDataService(
+                fp: null,
+                context: null,
+                paramsLoadMedia: ParamsLoadMedia(
+                  idRequestReal: inspectionRequest.idSolicitudServicio!,
+                  idSolicitudTemp: inspectionRequest.idSolicitudTemp!,
+                ),
+              );
+
+              if (loadMedia) {
+                Helper.logger.i('Multimedia subida correctamente');
+                inspectionRequest.statusMultimediaRegistrada =
+                    HelperRequestOffline.loaded;
+                await OfflineStorage().saveCreatingRequests(value: requestCopy);
+              } else {
+                Helper.logger.w('Error al registrar multimedia');
+                inspectionRequest.statusMultimediaRegistrada =
+                    HelperRequestOffline.error;
+                await OfflineStorage().saveCreatingRequests(value: requestCopy);
+                errorLoadMedia = true;
+              }
+            }
+
+            if (!errorLoadMedia &&
+                inspectionRequest.statusInspeccionRegistrada !=
+                    HelperRequestOffline.loaded) {
+              final loadInformation =
+                  await HelperRequestOffline.loadInformationRequestService(
+                context: null,
+                paramsLoadRequest: ParamsLoadRequest(
+                  errorMediaLoad:
+                      inspectionRequest.statusMultimediaRegistrada ==
+                          HelperRequestOffline.error,
+                  idRequestReal: inspectionRequest.idSolicitudServicio!,
+                  idSolicitudTemp: inspectionRequest.idSolicitudTemp!,
+                  paramsRequest: ParamsRequest(
+                    codEjecutivo: inspectionRequest
+                        .dataSolicitud!.ejecutivo!.codEjecutivo!,
+                    idAgencia: inspectionRequest.dataSolicitud!.idAgencia!,
+                    idBroker: inspectionRequest.dataSolicitud!.idBroker!,
+                    idProceso: inspectionRequest.dataSolicitud!.idProceso!,
+                    idSolicitud: inspectionRequest.idSolicitudTemp!,
+                    idTipoFlujo: inspectionRequest.dataSolicitud!.idTipoFlujo!,
+                    polizaMadre: inspectionRequest.dataSolicitud!.polizaMadre,
+                  ),
+                ),
+              );
+
+              if (!loadInformation.error) {
+                Helper.logger.i('Inspección finalizada correctamente');
+                inspectionRequest.statusInspeccionRegistrada =
+                    HelperRequestOffline.loaded;
+                inspectionRequest.messageInspectionRegistrada =
+                    loadInformation.data.toString();
+                await OfflineStorage().saveCreatingRequests(value: requestCopy);
+                await InspectionStorage().removeDataInspection(
+                    inspectionRequest.idSolicitudTemp.toString());
+                ReviewRequestPage.listInspectionFinishedOffline.removeWhere(
+                  (e) => e.idSolicitud == inspectionRequest.idSolicitudTemp,
+                );
+              } else {
+                Helper.logger.e(
+                    'Error al finalizar inspección: ${loadInformation.message}');
+                inspectionRequest.statusInspeccionRegistrada =
+                    HelperRequestOffline.error;
+                inspectionRequest.mensageErrorRegistrarInspection =
+                    loadInformation.message;
+                await OfflineStorage().saveCreatingRequests(value: requestCopy);
+                
+                await OfflineStorage().saveInspectionFinishedOffline(
+                    ReviewRequestPage.listInspectionFinishedOffline);
+              }
+            }
+
+            if (inspectionRequest.statusSolicitudRegistrada ==
+                    HelperRequestOffline.loaded &&
+                inspectionRequest.statusMultimediaRegistrada ==
+                    HelperRequestOffline.loaded &&
+                inspectionRequest.statusInspeccionRegistrada ==
+                    HelperRequestOffline.loaded) {
+              listInspectionOfline.removeWhere(
+                  (e) => e.idSolicitud == inspectionRequest.idSolicitudTemp);
+              requestCopy.removeWhere((e) =>
+                  e.idSolicitudTemp == inspectionRequest.idSolicitudTemp);
+              await OfflineStorage()
+                  .saveInspectionFinishedOffline(listInspectionOfline);
+              await OfflineStorage().saveCreatingRequests(value: requestCopy);
+              Helper.logger.i('Información enviada y eliminada correctamente');
+            }
+
+            await Future.delayed(
+                Duration(milliseconds: 50)); // Reducir presión de memoria
+          }
+        }
+        request = List.from(requestCopy); // Actualizar request al final
+      }
+
+      Logger().w('No hay solicitudes pendientes');
+      if (listInspectionOfline.isNotEmpty) {
+        List<Lista> listaFilter = listInspectionOfline
+            .where((element) => element.creacionOffline == false)
+            .toList();
+        Logger().w('Cantidad: ${listaFilter.length}');
+        for (var e in listaFilter) {
+          final continueInspection = await InspectionStorage()
+              .getDataInspection(e.idSolicitud.toString());
+          Logger().w('continueInspection: $continueInspection');
+          if (continueInspection != null) {
+            final saveInspection = await Helper.getDataSave(
+              continueInspection: continueInspection,
+              inspection: e,
+            );
+            final response = await Helper.finishedInspecction(
+              saveInspection: saveInspection,
+              continueInspection: continueInspection,
+              context: null,
+              idRequest: e.idSolicitud,
+              showLoading: false,
+              showAlertError: false,
+            );
+
+            Logger().w('response: ${response.error}');
+            if (!response.error) {
+              bool ok = await loadMediaData(list: e);
+              Logger().w('ok: $ok');
+              if (ok) {
+                await InspectionStorage()
+                    .removeDataInspection(e.idSolicitud.toString());
+                listInspectionOfline
+                    .removeWhere((data) => data.idSolicitud == e.idSolicitud);
+                await OfflineStorage()
+                    .saveInspectionFinishedOffline(listInspectionOfline);
+              }
             }
           }
-
-          if (inspectionRequest.statusSolicitudRegistrada == HelperRequestOffline.loaded &&
-              inspectionRequest.statusMultimediaRegistrada == HelperRequestOffline.loaded &&
-              inspectionRequest.statusInspeccionRegistrada == HelperRequestOffline.loaded) {
-            listInspectionOfline.removeWhere((e) => e.idSolicitud == inspectionRequest.idSolicitudTemp);
-            requestCopy.removeWhere((e) => e.idSolicitudTemp == inspectionRequest.idSolicitudTemp);
-            await OfflineStorage().saveInspectionFinishedOffline(listInspectionOfline);
-            await OfflineStorage().saveCreatingRequests(value: requestCopy);
-            Helper.logger.i('Información enviada y eliminada correctamente');
-          }
-
-          await Future.delayed(Duration(milliseconds: 50)); // Reducir presión de memoria
         }
       }
-      request = List.from(requestCopy); // Actualizar request al final
+      Helper.isProcessing = false;
     }
-
-    Logger().w('No hay solicitudes pendientes');
-    if (listInspectionOfline.isNotEmpty) {
-      List<Lista> listaFilter = listInspectionOfline.where((element) => element.creacionOffline == false).toList();
-      Logger().w('Cantidad: ${listaFilter.length}');
-      for (var e in listaFilter) {
-        final continueInspection = await InspectionStorage().getDataInspection(e.idSolicitud.toString());
-        Logger().w('continueInspection: $continueInspection');
-        if (continueInspection != null) {
-          final saveInspection = await Helper.getDataSave(
-            continueInspection: continueInspection,
-            inspection: e,
-          );
-          final response = await Helper.finishedInspecction(
-            saveInspection: saveInspection,
-            continueInspection: continueInspection,
-            context: null,
-            idRequest: e.idSolicitud,
-            showLoading: false,
-            showAlertError: false,
-          );
-
-          Logger().w('response: ${response.error}');
-          if (!response.error) {
-            bool ok = await loadMediaData(list: e);
-            Logger().w('ok: $ok');
-            if (ok) {
-              await InspectionStorage().removeDataInspection(e.idSolicitud.toString());
-              listInspectionOfline.removeWhere((data) => data.idSolicitud == e.idSolicitud);
-              await OfflineStorage().saveInspectionFinishedOffline(listInspectionOfline);
-            }
-          }
-        }
-      }
-    }
-    Helper.isProcessing = false;
   }
-}
 //----------------------------
   // Future<void> _processUploadInspecctionOffline() async {
   //   List<Request> request = await OfflineStorage().getCreatingRequests();
@@ -1388,14 +1435,18 @@ Future<void> _processUploadInspecctionOffline() async {
 
   Future<void> verifyPendingMedia() async {
     try {
-      final response = await RequestReviewService().getListInspect(null);
+      final response = await RequestReviewService()
+          .getListInspect(null, filtering: true, body: {
+        "opcion": "C_APP",
+        "dataSolicitud": {"idEstadoInspeccion": 5}
+      });
 
       if (response.error || response.data == null) {
         log('Entra aqui');
         return;
       }
 
-      final pendingInspections = _filterPendingInspections(response.data!);
+      final pendingInspections = response.data!;
       log('Inspecciones pendientes: ${pendingInspections.first.lista.length}');
       if (pendingInspections.isEmpty) {
         return;

@@ -1,7 +1,7 @@
 name: sweaden_old_new_version
 description: Sweaden Broker - better version.
 publish_to: 'none'
-version: 3.30.0
+version: 3.32.2
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
@@ -33,17 +33,17 @@ dependencies:
   # flutter_image_compress: ^2.4.0
   # flutter_local_notifications: ^19.3.0
   flutter_awesome_select_clone: ^7.5.0
-  flutter_background_service: ^5.1.0
+  flutter_background_service: 5.1.0
   flutter_google_places_sdk: ^0.4.2+1
   flutter_image_compress: ^2.4.0
-  flutter_local_notifications: ^19.3.0
+  flutter_local_notifications: 18.0.0
   flutter_localizations:
     sdk: flutter
   flutter_secure_storage: ^9.2.4
-  geolocator: 12.0.0
+  geolocator: 14.0.1
   google_fonts: ^6.2.1
   google_maps_flutter: ^2.10.1
-  google_mlkit_face_detection: ^0.13.1
+  google_mlkit_face_detection: 0.12.0
   http: ^1.4.0
   http_parser: ^4.0.2
   image: ^4.5.4
@@ -57,7 +57,7 @@ dependencies:
   package_info_plus: ^8.3.0
   page_transition: ^2.2.1
   path_provider: ^2.1.5
-  permission_handler: ^12.0.1
+  permission_handler: 11.4.0
   provider: ^6.1.5
   rounded_loading_button_plus: ^3.0.1
   signature: ^5.5.0
@@ -93,7 +93,9 @@ dependencies:
   # video_player: ^2.10.0
 
 dependency_overrides:
+  flutter_plugin_android_lifecycle: 2.0.24
   geolocator_android: 4.6.1
+
 
 dev_dependencies:
   flutter_test:

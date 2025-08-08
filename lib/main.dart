@@ -93,6 +93,7 @@ Future<void> initializeService() async {
       onStart: onStart,
       isForegroundMode: true,
       autoStartOnBoot: true,
+      foregroundServiceTypes: [AndroidForegroundType.dataSync],
       notificationChannelId: notificationChannelId,
       initialNotificationTitle: 'Sweaden procesos en segundo plano',
       initialNotificationContent: 'Iniciando',
@@ -242,11 +243,13 @@ class _SWAPPState extends State<SWAPP> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      theme: ThemeData(useMaterial3: false),
       supportedLocales: const [Locale('es', 'EC')],
       debugShowCheckedModeBanner: false,
       title: AppConfig.appEnv.appName,
       //* PROD
       initialRoute: 'loading',
+      
       //?TEST
       // initialRoute: 'test-camera',
       routes: customRoutes,
