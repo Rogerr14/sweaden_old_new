@@ -276,79 +276,88 @@ class _CameraWidgetState extends State<CameraWidget> {
   }
 
   _takePictureFace() async {
-    pictureFile = await cameraController.takePicture();
-    final faceDetector =
-        gmlkit.FaceDetector(options: gmlkit.FaceDetectorOptions());
-    final inputImage = gmlkit.InputImage.fromFilePath(pictureFile!.path);
-    final List<gmlkit.Face> faces = await faceDetector.processImage(inputImage);
+    try {
+      pictureFile = await cameraController.takePicture();
+      final faceDetector =
+          gmlkit.FaceDetector(options: gmlkit.FaceDetectorOptions());
+      if (pictureFile != null) {
+        final inputImage = gmlkit.InputImage.fromFilePath(pictureFile!.path);
+        final List<gmlkit.Face> faces =
+            await faceDetector.processImage(inputImage);
 
-    bool setPhoto = await showCupertinoModalBottomSheet(
-        context: context,
-        builder: (context) => Material(
-              type: MaterialType.transparency,
-              child: SizedBox(
-                child: Column(
-                  children: [
-                    Container(
-                      alignment: Alignment.center,
-                      height: 50,
-                      width: double.infinity,
-                      color: Colors.white,
-                      child: Text('${widget.description} ${faces.length}',
-                          style: TextStyle(
-                              color: AppConfig.appThemeConfig.secondaryColor,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 18)),
+        bool setPhoto = await showCupertinoModalBottomSheet(
+            context: context,
+            builder: (context) => Material(
+                  type: MaterialType.transparency,
+                  child: SizedBox(
+                    child: Column(
+                      children: [
+                        Container(
+                          alignment: Alignment.center,
+                          height: 50,
+                          width: double.infinity,
+                          color: Colors.white,
+                          child: Text('${widget.description} ${faces.length}',
+                              style: TextStyle(
+                                  color:
+                                      AppConfig.appThemeConfig.secondaryColor,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 18)),
+                        ),
+                        Expanded(
+                          child: SizedBox(
+                            child: Image.file(File(pictureFile!.path)),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 100,
+                          width: double.infinity,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(
+                                  height: 80,
+                                  width: 80,
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      Icons.highlight_remove_outlined,
+                                      size: 40,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.pop(context, false);
+                                    },
+                                  )),
+                              if (faces.isNotEmpty)
+                                SizedBox(
+                                  height: 80,
+                                  width: 80,
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      Icons.check_circle_outline_outlined,
+                                      size: 40,
+                                    ),
+                                    onPressed: () async {
+                                      // _updateMediaDataStorage(pictureFile!.path);
+                                      Navigator.pop(context, true);
+                                    },
+                                  ),
+                                )
+                            ],
+                          ),
+                        )
+                      ],
                     ),
-                    Expanded(
-                      child: SizedBox(
-                        child: Image.file(File(pictureFile!.path)),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 100,
-                      width: double.infinity,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          SizedBox(
-                              height: 80,
-                              width: 80,
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.highlight_remove_outlined,
-                                  size: 40,
-                                ),
-                                onPressed: () {
-                                  Navigator.pop(context, false);
-                                },
-                              )),
-                          if (faces.isNotEmpty)
-                            SizedBox(
-                              height: 80,
-                              width: 80,
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.check_circle_outline_outlined,
-                                  size: 40,
-                                ),
-                                onPressed: () async {
-                                  // _updateMediaDataStorage(pictureFile!.path);
-                                  Navigator.pop(context, true);
-                                },
-                              ),
-                            )
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ));
-    if (setPhoto) {
-      Future.delayed(const Duration(milliseconds: 800), () {
-        Navigator.pop(context, pictureFile);
-      });
+                  ),
+                ));
+        if (setPhoto) {
+          Future.delayed(const Duration(milliseconds: 800), () {
+            Navigator.pop(context, pictureFile);
+          });
+        }
+      }
+    } catch (e, s) {
+      FirebaseCrashlytics.instance
+          .recordError(e, s, reason: 'Error al procesar imagen facial');
     }
   }
 

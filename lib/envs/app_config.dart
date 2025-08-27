@@ -6,7 +6,7 @@ import 'package:sweaden_old_new_version/envs/generic/app_env.dart'
     as generic_env;
 
 class AppConfig {
-  static String appConfig = "sweaden";
+  static String appConfig = "sweaden-test";
 
   static generic_theme.AppThemeConfig appThemeConfig = generic_theme.AppThemeConfig();
   static generic_env.AppEnv appEnv = generic_env.AppEnv();
