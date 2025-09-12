@@ -200,7 +200,7 @@ class PersonalDataFormState extends State<PersonalDataFormWidget>
           _checkFormCompleted();
         }
       } else {
-        log(jsonEncode(widget.inspection));
+        // log(jsonEncode(widget.inspection));
         firstameController.text = widget.inspection.nombres;
         lastnameController.text = widget.inspection.apellidos;
         razonSocialController.text = widget.inspection.razonSocial;
@@ -352,8 +352,8 @@ class PersonalDataFormState extends State<PersonalDataFormWidget>
             : null;
     inspectionData.personaPublica = null;
     inspectionData.personaPublicaValue = null;
-    inspectionData.pasives = dataClient.persona.pasivos.toString();
-    inspectionData.actives = dataClient.persona.activos.toString();
+    inspectionData.pasives = dataClient.persona.pasivos != null ? dataClient.persona.pasivos.toString() : '0';
+    inspectionData.actives =dataClient.persona.activos != null ? dataClient.persona.activos.toString() : '0';
     razonSocialController.text = dataClient.persona.nombre ?? '';
     firstameController.text =
         '${dataClient.persona.nombre1} ${dataClient.persona.nombre2}';

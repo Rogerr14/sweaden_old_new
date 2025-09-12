@@ -108,11 +108,11 @@ class _CardWidgetState extends State<_CardWidget> {
     ContinueInspection? continueInspection =
         await InspectionStorage().getDataInspection(idSolicitud.toString());
     if (continueInspection != null) {
-      Helper.logger.w('customerSignature local: ${continueInspection.finishedInpectionOffline}');
+      // Helper.logger.w('customerSignature local: ${continueInspection.finishedInpectionOffline}');
       return continueInspection.finishedInpectionOffline! ? true : false;
       //setState(() {});
     } else {
-      Helper.logger.w('customerSignature variable: ${customerSignature}');
+      // Helper.logger.w('customerSignature variable: ${customerSignature}');
       return false;
       // customerSignature = false;
       // setState(() {});
@@ -212,7 +212,7 @@ class _CardListWidgetState extends State<_CardListWidget> {
 
   @override
   void initState() {
-    Helper.logger.w(widget.customerSignature.toString());
+    // Helper.logger.w(widget.customerSignature.toString());
     widget.customerSignature!.then((value) => customerSignature = value);
     //_pendingShipping();
     getValueButtonDownload();

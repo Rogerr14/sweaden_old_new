@@ -504,7 +504,7 @@ class _InvoiceDetailFormState
   _getInvoiceDetails() async {
     final cInspection = await InspectionStorage()
         .getDataInspection(widget.inspection.idSolicitud.toString());
-    Helper.logger.w('valor cargado: ${cInspection?.valorSugerido}');
+    // Helper.logger.w('valor cargado: ${cInspection?.valorSugerido}');
     List<CobOriginale> cobAdicionales = [];
     final lists = Helper.sortCoverages(
         accessoriesVehicles: (cInspection!.accessoriesVehicles != null)
@@ -536,7 +536,7 @@ class _InvoiceDetailFormState
     final response = await RequestReviewService().getInvoiceData(context, data);
 
     if (!response.error) {
-      Helper.logger.w('valor asegurado: ${cInspection.valorSumaAsegurada}');
+      // Helper.logger.w('valor asegurado: ${cInspection.valorSumaAsegurada}');
       sumAssured = response.data!.sumaAseg;
       // sumAssured = double.parse(cInspection.valorSumaAsegurada!);
       netPremium = response.data!.primaNeta;

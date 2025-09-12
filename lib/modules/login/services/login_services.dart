@@ -54,7 +54,7 @@ class LoginServices {
         // Helper.timeUpdateDistance = userData.tiempoActualizarDistancia;
         UserDataStorage().setTKmDistance(userData.kmRecorrido);
         UserDataStorage().setTimeUpDistance(userData.tiempoActualizarDistancia);
-        Helper.startBackgroundService();
+       await Helper.startBackgroundService();
         fp.setSession(true);
         //fp.setLoggedIn(true);
         Navigator.pushReplacementNamed(context, 'home');

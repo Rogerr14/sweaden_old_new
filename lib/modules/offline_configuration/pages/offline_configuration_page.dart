@@ -312,9 +312,9 @@ class _OfflineConfigurationPageState extends State<OfflineConfigurationPage> {
     UserDataStorage().activeBackgroundService(activate);
     fp.setActiveBackground(activate);
     if (activate) {
-      Helper.startBackgroundService();
+     await Helper.startBackgroundService();
     } else {
-      Helper.stopBackgroundService();
+    await   Helper.stopBackgroundService();
     }
     setState(() {
       

@@ -76,7 +76,7 @@ class NewRequestService {
       final data = {"idBroker": idBroker, "idAgencia": idAgency};
       GeneralResponse response = await interceptorHttp.request(context, "POST",
           '${AppConfig.appEnv.serviceUrl}consultas/ejecutivos', data);
-      late List<Executive> executives;
+       List<Executive>? executives;
       if (!response.error) {
         executives = executiveFromJson(jsonEncode(response.data));
       }

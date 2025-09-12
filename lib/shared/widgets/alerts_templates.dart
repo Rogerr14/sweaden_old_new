@@ -110,7 +110,8 @@ class AlertLoading extends StatelessWidget {
               ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Image(
-                      image: AssetImage(AppConfig.appThemeConfig.loadingGifPath),
+                      image:
+                          AssetImage(AppConfig.appThemeConfig.loadingGifPath),
                       fit: BoxFit.fill)),
               Positioned(
                   bottom: 0,
@@ -825,14 +826,18 @@ class _AlertResendMediaState extends State<AlertResendMedia> {
                               //       //controll.reset();
                               //   });
                               try {
+                                var image = Uint8List(0);
+                                if (widget.mediaData[index].type == 'image') {
+                                  image = Uint8List.fromList(
+                                      await File(widget.mediaData[index].path!).readAsBytes());
+                                }
                                 MediaType mediaType =
                                     (widget.mediaData[index].type == 'image')
                                         ? MediaType('image', 'jpg')
                                         : MediaType('video', 'mp4');
                                 Uint8List? mediaPhoto =
                                     (widget.mediaData[index].type == 'image')
-                                        ? Uint8List.fromList(
-                                            widget.mediaData[index].data!)
+                                        ? image
                                         : null;
                                 File? mediaVideo =
                                     (widget.mediaData[index].type == 'video')
@@ -973,7 +978,11 @@ class _AlertResendMediaState extends State<AlertResendMedia> {
                                     idArchiveType: e.idArchiveType));
                             OfflineStorage().setMediaStatus(Helper.mediaStatus);
                             setState(() {});
-
+                            var image = Uint8List(0);
+                            if (e.type == 'image') {
+                              image = Uint8List.fromList(
+                                  await File(e.path!).readAsBytes());
+                            }
                             final response = await MediaService().uploadMedia(
                               context: context,
                               idRequest: widget.idRequest,
@@ -983,7 +992,8 @@ class _AlertResendMediaState extends State<AlertResendMedia> {
                                   ? MediaType('image', 'jpg')
                                   : MediaType('video', 'mp4'),
                               mediaPhoto: (e.type == 'image')
-                                  ? Uint8List.fromList(e.data!)
+                                  // ? Uint8List.fromList(e.data!)
+                                  ? image
                                   : null,
                               mediaVideo:
                                   (e.type == 'video') ? File(e.path!) : null,

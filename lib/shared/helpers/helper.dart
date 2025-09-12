@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -860,19 +861,35 @@ class Helper {
   static Pattern addressRegExp = RegExp(r'[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ\-\.\# ]');
   static Pattern textRegExp = RegExp(r'[ a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]');
 
-  static void startBackgroundService() {
+  static Future<void> startBackgroundService()async {
     try {
-      log('-----------INICIANDO SERVICIO EN SEGUNDO PLANO------------');
       final service = FlutterBackgroundService();
+      final isRunning = await service.isRunning();
+      if(!isRunning){
+      log('-----------INICIANDO SERVICIO EN SEGUNDO PLANO------------');
       service.startService();
-    } catch (e) {
+      }
+    } catch (e, s) {
+      FirebaseCrashlytics.instance
+          .recordError(e, s, reason: "Error in start backgroun service");
       log('Error al iniciar el servicio en segundo plano: $e');
     }
   }
 
-  static void stopBackgroundService() {
+  static Future<void> stopBackgroundService() async{
+    try {
+    
+      
     final service = FlutterBackgroundService();
+    final isRunning = await service.isRunning();
+    if(isRunning){
+
     service.invoke("stop");
+    }
+    } catch (e, s) {
+      FirebaseCrashlytics.instance
+          .recordError(e, s, reason: "Error in stop backgroun service");
+    }
   }
 
   static bool session = false;
@@ -936,7 +953,7 @@ class Helper {
           for (Request inspectionRequest in batch) {
             bool errorRegisterRequest = false;
             bool errorLoadMedia = false;
-
+            
             if (inspectionRequest.idSolicitudServicio == 0) {
               final response = await NewRequestService().registerRequest(
                 null,
@@ -966,7 +983,7 @@ class Helper {
               Helper.logger.w('Solicitud ya registrada');
               errorRegisterRequest = false;
             }
-
+            
             if (!errorRegisterRequest &&
                 inspectionRequest.statusMultimediaRegistrada !=
                     HelperRequestOffline.loaded) {
@@ -983,6 +1000,7 @@ class Helper {
                 Helper.logger.i('Multimedia subida correctamente');
                 inspectionRequest.statusMultimediaRegistrada =
                     HelperRequestOffline.loaded;
+              
                 await OfflineStorage().saveCreatingRequests(value: requestCopy);
               } else {
                 Helper.logger.w('Error al registrar multimedia');
@@ -992,6 +1010,7 @@ class Helper {
                 errorLoadMedia = true;
               }
             }
+
 
             if (!errorLoadMedia &&
                 inspectionRequest.statusInspeccionRegistrada !=
@@ -1024,7 +1043,7 @@ class Helper {
                     HelperRequestOffline.loaded;
                 inspectionRequest.messageInspectionRegistrada =
                     loadInformation.data.toString();
-                await OfflineStorage().saveCreatingRequests(value: requestCopy);
+                // await OfflineStorage().saveCreatingRequests(value: requestCopy);
                 await InspectionStorage().removeDataInspection(
                     inspectionRequest.idSolicitudTemp.toString());
                 ReviewRequestPage.listInspectionFinishedOffline.removeWhere(
@@ -1038,7 +1057,7 @@ class Helper {
                 inspectionRequest.mensageErrorRegistrarInspection =
                     loadInformation.message;
                 await OfflineStorage().saveCreatingRequests(value: requestCopy);
-                
+
                 await OfflineStorage().saveInspectionFinishedOffline(
                     ReviewRequestPage.listInspectionFinishedOffline);
               }
@@ -1447,7 +1466,7 @@ class Helper {
       }
 
       final pendingInspections = response.data!;
-      log('Inspecciones pendientes: ${pendingInspections.first.lista.length}');
+      log('Inspecciones pendientes media: ${pendingInspections.first.lista.length}');
       if (pendingInspections.isEmpty) {
         return;
       }
@@ -1493,8 +1512,15 @@ class Helper {
       final identification = list.identificacion;
 
       //await MediaDataStorage().removeMediaData(widget.idRequest);
-      if (dataMedia != null) {
+      
+      if (dataMedia != null && dataMedia.isNotEmpty) {
         for (var item in dataMedia) {
+          var image = Uint8List(0);
+            if(item.type == 'image'){
+            image =
+                Uint8List.fromList(await File(item.path!).readAsBytes());
+
+            }
           if (item.status != 'UPLOADED' && item.status != 'NO_MEDIA') {
             debugPrint(
                 'Archivo a reenviar: ${item.type} - ${item.idArchiveType} - ${item.status}');
@@ -1507,7 +1533,8 @@ class Helper {
                   ? MediaType('image', 'jpg')
                   : MediaType('video', 'mp4'),
               mediaPhoto: (item.type == 'image')
-                  ? Uint8List.fromList(item.data!)
+                  // ? Uint8List.fromList(item.data!)
+                  ? image
                   : null,
               mediaVideo: (item.type == 'video') ? File(item.path!) : null,
               showAlertError: false,
@@ -1536,11 +1563,11 @@ class Helper {
         }
       }
 
-      Helper.logger.w('uploaded: ${jsonEncode(uploaded)}');
+      // Helper.logger.w('uploaded: ${jsonEncode(uploaded)}');
 
       return true;
     } catch (e) {
-      return true;
+      return false;
     }
   }
 
@@ -1589,7 +1616,12 @@ class Helper {
               status: 'cargando'));
 
       OfflineStorage().setMediaStatus(mediaStatus);
+var image = Uint8List(0);
+            if(media.type == 'image'){
+            image =
+                Uint8List.fromList(await File(media.path!).readAsBytes());
 
+            }
       final response = await MediaService().uploadMedia(
         context: null,
         idRequest: inspection.idSolicitud,
@@ -1597,7 +1629,7 @@ class Helper {
         identification: inspection.identificacion,
         mediaType: mediaType,
         mediaPhoto:
-            media.type == 'image' ? Uint8List.fromList(media.data!) : null,
+            media.type == 'image' ? image: null,
         mediaVideo: media.type == 'video' ? File(media.path!) : null,
         showAlertError: false,
       );

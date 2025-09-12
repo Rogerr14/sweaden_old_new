@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
        Helper.startBackgroundService();
     // }
 
-    log(ReviewRequestPage.listInspectionFinishedOffline.length.toString());
+    // log(ReviewRequestPage.listInspectionFinishedOffline.length.toString());
 
     super.initState();
   }
@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> {
   _getListCreatingRequests() async {
     final response = await OfflineStorage().getCreatingRequests();
 
-    log(jsonEncode({'requests_offline': (response)}));
+    // log(jsonEncode({'requests_offline': (response)}));
 
     if (response.isNotEmpty) {
       NewRequestPage.listCreatingrequests = response;
@@ -308,7 +308,7 @@ class _HomePageState extends State<HomePage> {
         IconButton(
           onPressed: () {
             fp.showAlert(content: const AlertLogOut());
-            log('entra');
+            // log('entra');
           },
           icon: const Icon(Icons.logout_sharp),
         ),

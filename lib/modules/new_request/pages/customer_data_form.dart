@@ -38,6 +38,12 @@ class _CustomerDataFormState extends State<CustomerDataForm>
   TextEditingController businessNameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController addressController = TextEditingController();
+
+  final _nameFocusNode = FocusNode();
+  final _lastNameFocusNode = FocusNode();
+  final _businessNameFocusNode = FocusNode();
+  final _phoneFocusNode = FocusNode();
+  final _addressFocusNode = FocusNode();
   bool isNatural = false;
   bool? isValidDocument; //? para input ci, passport y ruc
   bool? isValidPhone; //? para input telefono
@@ -73,8 +79,16 @@ class _CustomerDataFormState extends State<CustomerDataForm>
     lastNameController.dispose();
     businessNameController.dispose();
     phoneController.dispose();
-    addressController.dispose();
     scrollController.dispose();
+    addressController.dispose();
+
+
+    _nameFocusNode.dispose();
+    _lastNameFocusNode.dispose();
+    _businessNameFocusNode.dispose();
+    _phoneFocusNode.dispose();
+    _addressFocusNode.dispose();
+    FocusNode().unfocus();
     super.dispose();
   }
 
@@ -219,6 +233,7 @@ class _CustomerDataFormState extends State<CustomerDataForm>
         child: ElevatedButton(
             onPressed: () {
               Helper.dismissKeyboard(context);
+              FocusScope.of(context).unfocus();
               _saveCustomerData();
               widget.navigateToPage(1);
             },
@@ -336,9 +351,7 @@ class _CustomerDataFormState extends State<CustomerDataForm>
     addressController.text =
         dc.persona.direccionDomicilio ?? (dc.persona.direcciones ?? "");
     //addressController.text = dc.persona.direccionDomicilio ?? "";
-    if (
-        phoneController.text.isNotEmpty &&
-        phoneController.text.length == 10) {
+    if (phoneController.text.isNotEmpty && phoneController.text.length == 10) {
       isValidPhone = true;
     } else {
       isValidPhone = false;
@@ -348,17 +361,15 @@ class _CustomerDataFormState extends State<CustomerDataForm>
 
   fillBusinessData(DatosCliente dc) {
     businessNameController.text = dc.persona.nombre ?? "";
-    phoneController.text =  (dc.persona.telefonoCelular != null &&
+    phoneController.text = (dc.persona.telefonoCelular != null &&
             dc.persona.telefonoCelular!.isNotEmpty &&
             dc.persona.telefonoCelular!.length == 10)
         ? dc.persona.telefonoCelular?.substring(0, 10) ?? ''
         : "";
-        addressController.text =
+    addressController.text =
         dc.persona.direccionDomicilio ?? (dc.persona.direcciones ?? "");
     //addressController.text = dc.persona.direccionDomicilio ?? "";
-    if (
-        phoneController.text.isNotEmpty &&
-        phoneController.text.length == 10) {
+    if (phoneController.text.isNotEmpty && phoneController.text.length == 10) {
       isValidPhone = true;
     } else {
       isValidPhone = false;
@@ -633,6 +644,7 @@ class _CustomerDataFormState extends State<CustomerDataForm>
       children: [
         TextFieldWidget(
           label: 'Nombres',
+          focusNode: _nameFocusNode,
           controller: nameController,
           inputFormatter: [
             FilteringTextInputFormatter.allow(Helper.textRegExp),
@@ -646,6 +658,7 @@ class _CustomerDataFormState extends State<CustomerDataForm>
         ),
         TextFieldWidget(
           label: 'Apellidos',
+          focusNode: _lastNameFocusNode,
           controller: lastNameController,
           inputFormatter: [
             FilteringTextInputFormatter.allow(Helper.textRegExp),
@@ -677,6 +690,7 @@ class _CustomerDataFormState extends State<CustomerDataForm>
         TextFieldWidget(
           label: 'Teléfono',
           controller: phoneController,
+          focusNode: _phoneFocusNode,
           maxLength: 10,
           textInputType: TextInputType.phone,
           inputFormatter: [FilteringTextInputFormatter.allow(RegExp('[0-9]'))],
@@ -698,8 +712,10 @@ class _CustomerDataFormState extends State<CustomerDataForm>
         TextFieldWidget(
           label: 'Dirección',
           controller: addressController,
+          focusNode: _addressFocusNode,
           onChanged: (value) {
             //debugPrint(value);
+
             _checkIfFieldsAreComplete();
           },
           inputFormatter: [

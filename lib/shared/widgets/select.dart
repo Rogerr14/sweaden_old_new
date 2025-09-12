@@ -61,6 +61,7 @@ class _SelectWidgetState extends State<SelectWidget> {
       modalType: widget.modalType,
       onChange: (v) {
         widget.optionSelected(v.choice);
+        FocusScope.of(context).unfocus();
       },
       selectedValue: widget.value,
       selectedChoice: widget.selectedChoice,

@@ -204,7 +204,7 @@ class _LoadingPageState extends State<LoadingPage> {
     // } else
     if (await Permission.locationAlways.isGranted) {
       bool serviceLocationEnabled = await Geolocator.isLocationServiceEnabled();
-      Helper.logger.e('serviceLocationEnabled: $serviceLocationEnabled');
+      // Helper.logger.e('serviceLocationEnabled: $serviceLocationEnabled');
 
       if (serviceLocationEnabled) {
         Navigator.of(context).pop();
@@ -248,7 +248,7 @@ class _LoadingPageState extends State<LoadingPage> {
                 onPressed: () async {
                   LocationPermission status =
                       await Geolocator.requestPermission();
-                  Helper.logger.e('status: $status');
+                  // Helper.logger.e('status: $status');
 
                   if (status == LocationPermission.deniedForever) {
                     Geolocator.openAppSettings();
@@ -256,8 +256,8 @@ class _LoadingPageState extends State<LoadingPage> {
                       status == LocationPermission.whileInUse) {
                     bool serviceLocationEnabled =
                         await Geolocator.isLocationServiceEnabled();
-                    Helper.logger
-                        .e('serviceLocationEnabled: $serviceLocationEnabled');
+                    // Helper.logger
+                    //     .e('serviceLocationEnabled: $serviceLocationEnabled');
 
                     if (serviceLocationEnabled) {
                       Navigator.of(context).pop();

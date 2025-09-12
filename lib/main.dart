@@ -55,7 +55,7 @@ const notificationId = 888;
 
 Future<void> initializeService() async {
   final service = FlutterBackgroundService();
-  Helper.logger.w("enta aqui");
+  // Helper.logger.w("enta aqui");
   final rquest = await Permission.notification.request().isGranted;
 
   const AndroidNotificationChannel channel = AndroidNotificationChannel(

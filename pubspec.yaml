@@ -1,7 +1,7 @@
 name: sweaden_old_new_version
 description: Sweaden Broker - better version.
 publish_to: 'none'
-version: 3.32.2
+version: 3.34.0
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
@@ -16,7 +16,7 @@ dependencies:
   # firebase_core: ^3.15.1
   # firebase_crashlytics: ^4.3.9
   # firebase_messaging: ^15.2.9
-  android_intent_plus: ^5.3.0
+  android_intent_plus: 5.3.1
   animate_do: ^4.2.0
   back_button_interceptor: ^8.0.4
   camera: ^0.11.0+2
@@ -63,8 +63,11 @@ dependencies:
   signature: ^5.5.0
   url_launcher: ^6.3.1
   uuid: ^4.5.1
+  # wy_video_compress: ^3.1.4
   video_compress: ^3.1.4
   video_player: ^2.9.5
+  # wy_video_compress: ^3.1.4+5
+
   # flutter_secure_storage: ^9.2.4
   # geolocator: ^14.0.2
   # google_fonts: ^6.2.1

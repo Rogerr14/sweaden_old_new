@@ -8,6 +8,7 @@ import 'package:sweaden_old_new_version/modules/home/pages/home_page.dart';
 import 'package:sweaden_old_new_version/modules/new_request/pages/new_request.dart';
 import 'package:sweaden_old_new_version/modules/new_request/services/new_request_services.dart';
 import 'package:sweaden_old_new_version/modules/review_request/pages/request_review.dart';
+import 'package:sweaden_old_new_version/modules/review_request/services/request_bitacora_services.dart';
 import 'package:sweaden_old_new_version/modules/review_request/widgets/alert_inspection_offline_widget.dart';
 import 'package:sweaden_old_new_version/modules/review_request/widgets/media%20form/services/media_service.dart';
 import 'package:sweaden_old_new_version/modules/upload_inspections/widgets/button.dart';
@@ -164,6 +165,8 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
               fp.dismissAlert();
               ReviewRequestPage.listInspectionFinishedOffline
                   .removeWhere((e) => e.idSolicitud == elemento.idSolicitud);
+              OfflineStorage().saveInspectionFinishedOffline(
+                  ReviewRequestPage.listInspectionFinishedOffline);
             }
           },
         ),
@@ -257,6 +260,10 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
           if (item.status != 'UPLOADED' && item.status != 'NO_MEDIA') {
             debugPrint(
                 'Archivo a reenviar: ${item.type} - ${item.idArchiveType} - ${item.status}');
+            var image = Uint8List(0);
+            if (item.type == 'image') {
+              image = Uint8List.fromList(await File(item.path!).readAsBytes());
+            }
             final response = await MediaService().uploadMedia(
               context: context,
               idRequest: list.idSolicitud,
@@ -267,20 +274,18 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
               mediaType: item.type == 'image'
                   ? MediaType('image', 'jpg')
                   : MediaType('video', 'mp4'),
-              mediaPhoto: (item.type == 'image')
-                  ? Uint8List.fromList(item.data!)
-                  : null,
+              mediaPhoto: (item.type == 'image') ? image : null,
               mediaVideo: (item.type == 'video') ? File(item.path!) : null,
               showAlertError: false,
             );
 
             if (!response.error) {
               // mediaNotUploaded.add(MediaResponse(idSolicitud: list.idSolicitud, idArchiveType: item.idArchiveType, status: Helper.statusMedia["2"].toString()));
-              Helper.logger.w('response; ${jsonEncode(response)}');
+              // Helper.logger.w('response; ${jsonEncode(response)}');
               uploaded.add(true);
               //await MediaDataStorage().removeMediaData(list.idSolicitud);
             } else {
-              Helper.logger.w('response; ${jsonEncode(response)}');
+              // Helper.logger.w('response; ${jsonEncode(response)}');
             }
           }
         }
@@ -293,11 +298,11 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                 .toList()
                 .length) {
           await MediaDataStorage().removeMediaData(list.idSolicitud);
-          Helper.logger.e('entroo todo es igual');
+          // Helper.logger.e('entroo todo es igual');
         }
       }
 
-      Helper.logger.w('uploaded: ${jsonEncode(uploaded)}');
+      // Helper.logger.w('uploaded: ${jsonEncode(uploaded)}');
 
       return true;
     } catch (e) {
@@ -391,7 +396,6 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                                         .indexWhere((item) =>
                                             item.idSolicitudTemp ==
                                             request.idSolicitudTemp);
-
                                     if (request.idSolicitudServicio == 0) {
                                       final response = await _newRequestService
                                           .registerRequest(
@@ -402,8 +406,8 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
 
                                       if (!response.error &&
                                           response.data != null) {
-                                        Helper.logger.i(
-                                            'la solicitud se registro correctamente');
+                                        // Helper.logger.i(
+                                        //     'la solicitud se registro correctamente');
                                         idRequest =
                                             response.data[0]["idSolicitud"];
                                         currentStep = 1;
@@ -423,8 +427,8 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                                         }
                                         setState(() {});
                                       } else {
-                                        Helper.logger.e(
-                                            'Ocurrio un error al registrar la solicitud, guarda el error');
+                                        // Helper.logger.e(
+                                        //     'Ocurrio un error al registrar la solicitud, guarda el error');
                                         if (index != -1) {
                                           NewRequestPage
                                                   .listCreatingrequests[index]
@@ -444,8 +448,8 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                                         setState(() {});
                                       }
                                     } else {
-                                      Helper.logger.w(
-                                          'esta solicitud ya fue registrada, tomar el id de la solicitud guardado en storage');
+                                      // Helper.logger.w(
+                                      log('esta solicitud ya fue registrada, tomar el id de la solicitud guardado en storage');
                                       idRequest = request.idSolicitudServicio!;
                                       errorRegisterRequest = false;
                                       setState(() {});
@@ -467,8 +471,8 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                                         );
 
                                         if (!loadMedia) {
-                                          Helper.logger.i(
-                                              'la multimedia se subio correctamente');
+                                          // Helper.logger.i(
+                                          //     'la multimedia se subio correctamente');
                                           errorLoadMedia = false;
                                           currentStep = 2;
                                           if (index != -1) {
@@ -485,8 +489,8 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                                           if (request
                                                   .statusInspeccionRegistrada ==
                                               HelperRequestOffline.loaded) {
-                                            Helper.logger.w(
-                                                'entro e elimino la informacion de la inspeccion, porque reintento enviar multimedia y esta cargada la informacion de la solicitud');
+                                            // Helper.logger.w(
+                                            //     'entro e elimino la informacion de la inspeccion, porque reintento enviar multimedia y esta cargada la informacion de la solicitud');
                                             await InspectionStorage()
                                                 .removeDataInspection(request
                                                     .idSolicitudTemp
@@ -496,8 +500,8 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                                           setState(() {});
                                         } else {
                                           fp.setLoadingInspection(false);
-                                          Helper.logger.w(
-                                              'ocurrio un error al registrar la multimedia, guarda error y continua');
+                                          // Helper.logger.w(
+                                          //     'ocurrio un error al registrar la multimedia, guarda error y continua');
                                           errorLoadMedia = false;
                                           currentStep = 2;
                                           if (index != -1) {
@@ -513,7 +517,7 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                                           setState(() {});
                                         }
                                       }
-
+                                      log("eeor load media $errorLoadMedia");
                                       if (!errorLoadMedia) {
                                         if (request
                                                 .statusInspeccionRegistrada !=
@@ -555,8 +559,8 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                                           log("cargar informacion: ${loadInformation.error}");
                                           if (!loadInformation.error) {
                                             fp.setLoadingInspection(false);
-                                            Helper.logger.i(
-                                                'la inspeccion se cargo y finalizo correctamente');
+                                            // Helper.logger.i(
+                                            //     'la inspeccion se cargo y finalizo correctamente');
                                             if (index != -1) {
                                               NewRequestPage
                                                       .listCreatingrequests[index]
@@ -575,8 +579,8 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                                             setState(() {});
                                           } else {
                                             fp.setLoadingInspection(false);
-                                            Helper.logger.e(
-                                                'ocurrio un error al finalizar la inspeccion');
+                                            // Helper.logger.e(
+                                            //     'ocurrio un error al finalizar la inspeccion');
                                             fp.dismissAlert();
                                             if (index != -1) {
                                               NewRequestPage
@@ -604,8 +608,8 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                                             HelperRequestOffline.loaded &&
                                         request.statusInspeccionRegistrada ==
                                             HelperRequestOffline.loaded) {
-                                      Helper.logger.i(
-                                          'se elimino toda la informacion todo se envio correctamente...');
+                                      // Helper.logger.i(
+                                      //     'se elimino toda la informacion todo se envio correctamente...');
                                       ReviewRequestPage
                                           .listInspectionFinishedOffline
                                           .removeWhere((e) =>
@@ -732,8 +736,8 @@ class _UploadInspectionsPageState extends State<UploadInspectionsPage> {
                                                 message:
                                                     'Antes de eliminar verifique que la informacion se cargo correctamente, ¿Esta seguro de eliminar la información de esta solicitud locamente?',
                                                 confirm: () async {
-                                                  Helper.logger.i(
-                                                      'se elimino toda la informacion');
+                                                  // Helper.logger.i(
+                                                  //     'se elimino toda la informacion');
                                                   await InspectionStorage()
                                                       .removeDataInspection(
                                                           request

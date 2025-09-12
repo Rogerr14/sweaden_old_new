@@ -231,7 +231,7 @@ class RequestReviewService {
     try {
       final data = {"opcion": "TIPO_ARCHIVO"};
       GeneralResponse response = await interceptorHttp.request(context, 'POST', '${AppConfig.appEnv.serviceUrl}consultas/datos_archivos', data);
-      late List<MediaInfo> mediaInfo;
+       List<MediaInfo>? mediaInfo;
       if (!response.error) {
         mediaInfo = mediaInfoFromJson(jsonEncode(response.data));
       }
@@ -275,7 +275,7 @@ class RequestReviewService {
           '${AppConfig.appEnv.serviceUrl}consultas/datos_modelos', option,
           showLoading: true);
 
-      late List<VehicleModel> vehicleModel;
+       List<VehicleModel>? vehicleModel;
       if (!response.error) {
         vehicleModel = vehicleModelFromJson(jsonEncode(response.data));
       }
@@ -327,7 +327,7 @@ class RequestReviewService {
           '${AppConfig.appEnv.serviceUrl}consultas/datos_accesorios', option,
           showLoading: true);
 
-      late List<AccesoriesVehicle> accesoriesVehicle;
+       List<AccesoriesVehicle>? accesoriesVehicle;
       if (!response.error) {
         accesoriesVehicle =
             accesoriesVehicleFromJson(jsonEncode(response.data));

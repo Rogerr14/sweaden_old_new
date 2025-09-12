@@ -55,7 +55,7 @@ class _OtpModalState extends State<OtpModal> {
     debugPrint("--- cargando obtener otp ---");
     String phone =  selectedOption ? phoneThirdController.text : phoneController.text;
     final response = await RequestReviewService().getOpt(context, widget.idSolicitud, emailController.text, phone);
-    Helper.logger.w('response otp: ${json.encode(response)}');
+    // Helper.logger.w('response otp: ${json.encode(response)}');
     if (!response.error) {
       optFlag = true;
       loading = false;

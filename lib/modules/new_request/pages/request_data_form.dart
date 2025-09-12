@@ -20,7 +20,8 @@ import 'package:sweaden_old_new_version/modules/upload_inspections/helper/reques
 import 'package:sweaden_old_new_version/shared/models/executive_response.dart';
 import 'package:sweaden_old_new_version/shared/models/inspection_data_response.dart';
 import 'package:sweaden_old_new_version/shared/models/request_model.dart';
-import 'package:sweaden_old_new_version/shared/models/review_request_data_response.dart' as list_request;
+import 'package:sweaden_old_new_version/shared/models/review_request_data_response.dart'
+    as list_request;
 import 'package:sweaden_old_new_version/shared/providers/functional_provider.dart';
 import 'package:sweaden_old_new_version/shared/secured_storage/offline_data_storage.dart';
 import 'package:sweaden_old_new_version/shared/secured_storage/request_data_storage.dart';
@@ -149,6 +150,7 @@ class _RequestDataFormState extends State<RequestDataForm>
     fp = Provider.of<FunctionalProvider>(context, listen: false);
     _loadSpecificData();
     //! _loadDatePicker();
+
     super.initState();
   }
 
@@ -280,7 +282,6 @@ class _RequestDataFormState extends State<RequestDataForm>
 
   @override
   Widget build(BuildContext context) {
-    Helper.logger.e('DURACION VIDEO: $durationVideo');
     super.build(context);
 
     return SingleChildScrollView(
@@ -339,7 +340,8 @@ class _RequestDataFormState extends State<RequestDataForm>
     );
   }
 
-  final _emailRegExp =  RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$');
+  final _emailRegExp =
+      RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$');
 
   bool _isEmailValid(String email) {
     return _emailRegExp.hasMatch(email);
@@ -353,7 +355,8 @@ class _RequestDataFormState extends State<RequestDataForm>
           child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30)), backgroundColor: AppConfig.appThemeConfig.primaryColor),
+                      borderRadius: BorderRadius.circular(30)),
+                  backgroundColor: AppConfig.appThemeConfig.primaryColor),
               onPressed: () async {
                 Helper.dismissKeyboard(context);
                 //final fp =  Provider.of<FunctionalProvider>(context, listen: false);
@@ -366,7 +369,8 @@ class _RequestDataFormState extends State<RequestDataForm>
                 if (request.dataSolicitud != null) {
                   // Si se ha seleccionado un archivo PDF, incluir el contenido base64 en la solicitud.
                   if (pdfAdjunto != null) {
-                    request.dataSolicitud!.pdfAdjunto = 'data:application/pdf;base64,$pdfAdjunto';
+                    request.dataSolicitud!.pdfAdjunto =
+                        'data:application/pdf;base64,$pdfAdjunto';
 
                     // Verificar el resultado en consola antes de enviar la solicitud
                     debugPrint('Contenido base64 del PDF: $pdfAdjunto');
@@ -447,10 +451,13 @@ class _RequestDataFormState extends State<RequestDataForm>
                   }
                   // Enviar la solicitud
                   //Verificar conexion a internet
-                  if(!fp.offline){
-                    final response = await NewRequestService().registerRequest(context, request);
+                  if (!fp.offline) {
+                    final response = await NewRequestService()
+                        .registerRequest(context, request);
                     if (!response.error) {
-                      fp.showAlert(content: const AlertSuccess(message: 'Solicitud creada con éxito!'));
+                      fp.showAlert(
+                          content: const AlertSuccess(
+                              message: 'Solicitud creada con éxito!'));
                       Future.delayed(const Duration(milliseconds: 2000), () {
                         fp.dismissAlert();
                         Navigator.pushReplacement(
@@ -477,95 +484,132 @@ class _RequestDataFormState extends State<RequestDataForm>
                               ),
                             );
                           },
-                          message: 'Algo salió mal. Por favor, inténtalo de nuevo más tarde.',
+                          message:
+                              'Algo salió mal. Por favor, inténtalo de nuevo más tarde.',
                         ),
                       );
                     }
-                  }else{
-
+                  } else {
                     try {
-                      if(NewRequestPage.listCreatingrequests.isNotEmpty){
-                        Request requestIdSolicitudTemp = NewRequestPage.listCreatingrequests.reduce((a, b) => a.idSolicitudTemp! > b.idSolicitudTemp! ? a : b);
-                        request.idSolicitudTemp = requestIdSolicitudTemp.idSolicitudTemp! + 1;
-                      }else{
-                        request.idSolicitudTemp = int.parse("${HelperRequestOffline.idRequestHeadBoard}00001");
+                      if (NewRequestPage.listCreatingrequests.isNotEmpty) {
+                        Request requestIdSolicitudTemp =
+                            NewRequestPage.listCreatingrequests.reduce((a, b) =>
+                                a.idSolicitudTemp! > b.idSolicitudTemp!
+                                    ? a
+                                    : b);
+                        request.idSolicitudTemp =
+                            requestIdSolicitudTemp.idSolicitudTemp! + 1;
+                      } else {
+                        request.idSolicitudTemp = int.parse(
+                            "${HelperRequestOffline.idRequestHeadBoard}00001");
                       }
-                      
+
                       request.opcion = 'I_OFFLINE';
                       request.uuidRequest = const Uuid().v4();
-                      request.dataSolicitud!.idEstadoInspeccion = Helper.coordinated;
-                      request.dataSolicitud!.idInspector = NewRequestPage.idInspector != '' ? NewRequestPage.idInspector : null;
-                      log(jsonEncode({'request': (request)}));
+                      request.dataSolicitud!.idEstadoInspeccion =
+                          Helper.coordinated;
+                      request.dataSolicitud!.idInspector =
+                          NewRequestPage.idInspector != ''
+                              ? NewRequestPage.idInspector
+                              : null;
+                      // log(jsonEncode({'request': (request)}));
 
                       NewRequestPage.listCreatingrequests.insert(0, request);
-                      
-                      bool response = await _offlineStorage.saveCreatingRequests(value: NewRequestPage.listCreatingrequests);
-                      
-                      if(!response){
-                      
+
+                      bool response =
+                          await _offlineStorage.saveCreatingRequests(
+                              value: NewRequestPage.listCreatingrequests);
+
+                      if (!response) {
                         list_request.Lista requestOffline = list_request.Lista(
-                          duracionVideo: durationVideo,
-                          idSolicitud: request.idSolicitudTemp!,
-                          idTipoSolicitud: int.parse(request.dataSolicitud!.idTipoSolicitud!),
-                          tipoSolicitud: request.dataSolicitud!.idTipoSolicitud! == "7" ? 'Móvil' : '',
-                          idBroker: request.dataSolicitud!.idBroker!,
-                          nombreBroker: request.dataSolicitud!.nombreBroker!,
-                          idRamo: request.dataSolicitud!.idRamo!,
-                          ramo: request.dataSolicitud!.ramo!,
-                          idAgencia: request.dataSolicitud!.idAgencia!,
-                          agencia: request.dataSolicitud!.agencia!,
-                          valorAsegurado: request.dataSolicitud!.datosVehiculo!.sumaAsegurada!,
-                          idTipoIdentificacion: int.parse(request.dataSolicitud!.idTipoIdentificacion!),
-                          identificacion: request.dataSolicitud!.identificacion!,
-                          nombres: request.dataSolicitud!.nombres ?? '',
-                          apellidos: request.dataSolicitud!.apellidos ?? '',
-                          razonSocial: request.dataSolicitud!.razonSocial ?? '',
-                          fechaInspeccionCompleta: null,
-                          fechaInspeccion: null,
-                          horaInspeccion: null,
-                          telefono: request.dataSolicitud!.telefono!,
-                          direccion: request.dataSolicitud!.direccion!,
-                          latitud: "0",
-                          longitud: "0",
-                          idUsuarioCreacion: 4, //request.dataSolicitud!.idUsuarioCreacion,
-                          usuarioCreacion: 'offline', //request.dataSolicitud!.usuarioCreacion,
-                          idEstadoInspeccion: request.dataSolicitud!.idEstadoInspeccion!,
-                          idTipoFlujo: int.parse(request.dataSolicitud!.idTipoFlujo!),
-                          tipoFlujo: request.dataSolicitud!.idTipoFlujo! ==   "5" ? 'Con inspección' : 'Sin inspección', //REVISAR
-                          idProducto : request.dataSolicitud!.idProducto ?? "0",
-                          polizaMadre: request.dataSolicitud!.polizaMadre,
-                          reasignado: request.dataSolicitud!.reasignado,
-                          numPoliza: null,
-                          pdfAdjunto: request.dataSolicitud!.pdfAdjunto!,
-                          idProceso: int.parse(request.dataSolicitud!.idProceso!),
-                          proceso: 'Proc sin Emisión',
-                          codEjecutivo: request.dataSolicitud!.ejecutivo!.codEjecutivo!,
-                          nombreEjecutivo: request.dataSolicitud!.ejecutivo!.nombre!,
-                          datosVehiculo: list_request.DatosVehiculo(
-                            anio: request.dataSolicitud!.datosVehiculo!.anio!,
-                            placa: request.dataSolicitud!.datosVehiculo!.placa!,
-                            deducible: request.dataSolicitud!.datosVehiculo!.deducible!,
-                            sumaAsegurada: request.dataSolicitud!.datosVehiculo!.sumaAsegurada!,
-                            id: request.idSolicitudTemp! //REVISAR
-                          ),
-                          ejecutivo: list_request.Ejecutivo(
-                            mail: request.dataSolicitud!.ejecutivo!.mail,
-                            nombre: request.dataSolicitud!.ejecutivo!.nombre!,
-                            usuario: request.dataSolicitud!.ejecutivo!.usuario,
-                            codEjecutivo: request.dataSolicitud!.ejecutivo!.codEjecutivo!,
-                          ),
-                          hayBitacoras: 0,
-                          mostrarBotonRegistrarBitacora: 0,
-                          creacionOffline: true,
-                          idSolicitudReal: 0,
-                          haveAdvertObservation: 0
-                        );
+                            duracionVideo: durationVideo,
+                            idSolicitud: request.idSolicitudTemp!,
+                            idTipoSolicitud: int.parse(
+                                request.dataSolicitud!.idTipoSolicitud!),
+                            tipoSolicitud:
+                                request.dataSolicitud!.idTipoSolicitud! == "7"
+                                    ? 'Móvil'
+                                    : '',
+                            idBroker: request.dataSolicitud!.idBroker!,
+                            nombreBroker: request.dataSolicitud!.nombreBroker!,
+                            idRamo: request.dataSolicitud!.idRamo!,
+                            ramo: request.dataSolicitud!.ramo!,
+                            idAgencia: request.dataSolicitud!.idAgencia!,
+                            agencia: request.dataSolicitud!.agencia!,
+                            valorAsegurado: request
+                                .dataSolicitud!.datosVehiculo!.sumaAsegurada!,
+                            idTipoIdentificacion: int.parse(
+                                request.dataSolicitud!.idTipoIdentificacion!),
+                            identificacion:
+                                request.dataSolicitud!.identificacion!,
+                            nombres: request.dataSolicitud!.nombres ?? '',
+                            apellidos: request.dataSolicitud!.apellidos ?? '',
+                            razonSocial:
+                                request.dataSolicitud!.razonSocial ?? '',
+                            fechaInspeccionCompleta: null,
+                            fechaInspeccion: null,
+                            horaInspeccion: null,
+                            telefono: request.dataSolicitud!.telefono!,
+                            direccion: request.dataSolicitud!.direccion!,
+                            latitud: "0",
+                            longitud: "0",
+                            idUsuarioCreacion:
+                                4, //request.dataSolicitud!.idUsuarioCreacion,
+                            usuarioCreacion:
+                                'offline', //request.dataSolicitud!.usuarioCreacion,
+                            idEstadoInspeccion:
+                                request.dataSolicitud!.idEstadoInspeccion!,
+                            idTipoFlujo:
+                                int.parse(request.dataSolicitud!.idTipoFlujo!),
+                            tipoFlujo:
+                                request.dataSolicitud!.idTipoFlujo! == "5"
+                                    ? 'Con inspección'
+                                    : 'Sin inspección', //REVISAR
+                            idProducto:
+                                request.dataSolicitud!.idProducto ?? "0",
+                            polizaMadre: request.dataSolicitud!.polizaMadre,
+                            reasignado: request.dataSolicitud!.reasignado,
+                            numPoliza: null,
+                            pdfAdjunto: request.dataSolicitud!.pdfAdjunto!,
+                            idProceso:
+                                int.parse(request.dataSolicitud!.idProceso!),
+                            proceso: 'Proc sin Emisión',
+                            codEjecutivo:
+                                request.dataSolicitud!.ejecutivo!.codEjecutivo!,
+                            nombreEjecutivo:
+                                request.dataSolicitud!.ejecutivo!.nombre!,
+                            datosVehiculo: list_request.DatosVehiculo(
+                                anio:
+                                    request.dataSolicitud!.datosVehiculo!.anio!,
+                                placa: request
+                                    .dataSolicitud!.datosVehiculo!.placa!,
+                                deducible: request.dataSolicitud!.datosVehiculo!.deducible!,
+                                sumaAsegurada: request.dataSolicitud!.datosVehiculo!.sumaAsegurada!,
+                                id: request.idSolicitudTemp! //REVISAR
+                                ),
+                            ejecutivo: list_request.Ejecutivo(
+                              mail: request.dataSolicitud!.ejecutivo!.mail,
+                              nombre: request.dataSolicitud!.ejecutivo!.nombre!,
+                              usuario:
+                                  request.dataSolicitud!.ejecutivo!.usuario,
+                              codEjecutivo: request
+                                  .dataSolicitud!.ejecutivo!.codEjecutivo!,
+                            ),
+                            hayBitacoras: 0,
+                            mostrarBotonRegistrarBitacora: 0,
+                            creacionOffline: true,
+                            idSolicitudReal: 0,
+                            haveAdvertObservation: 0);
 
                         //log('requestOffline: ${jsonEncode(requestOffline)}');
 
-                        ReviewRequestPage.listInspectionCoordinated.insert(0, requestOffline);
-                        await _offlineStorage.setListInspectionOffline(ReviewRequestPage.listInspectionCoordinated);
-                        fp.showAlert(content: const AlertSuccess(message: 'Solicitud creada con éxito!'));
+                        ReviewRequestPage.listInspectionCoordinated
+                            .insert(0, requestOffline);
+                        await _offlineStorage.setListInspectionOffline(
+                            ReviewRequestPage.listInspectionCoordinated);
+                        fp.showAlert(
+                            content: const AlertSuccess(
+                                message: 'Solicitud creada con éxito!'));
                         Future.delayed(const Duration(milliseconds: 2000), () {
                           fp.dismissAlert();
                           Navigator.pushReplacement(
@@ -579,12 +623,12 @@ class _RequestDataFormState extends State<RequestDataForm>
                       }
                     } on Exception catch (e) {
                       Helper.logger.e('Error: ${e.toString()}');
-                       fp.showAlert(
+                      fp.showAlert(
                         content: AlertGenericError(
                           messageButton: 'Entendido',
                           onPress: () {
                             //final fp = Provider.of<FunctionalProvider>(context, listen: false);
-                           // RequestDataStorage().removeRequestData();
+                            // RequestDataStorage().removeRequestData();
                             fp.dismissAlert();
                             Navigator.pushReplacement(
                               context,
@@ -594,7 +638,8 @@ class _RequestDataFormState extends State<RequestDataForm>
                               ),
                             );
                           },
-                          message: 'Algo salió mal. Por favor, inténtalo de nuevo más tarde.',
+                          message:
+                              'Algo salió mal. Por favor, inténtalo de nuevo más tarde.',
                         ),
                       );
                     }
@@ -606,7 +651,7 @@ class _RequestDataFormState extends State<RequestDataForm>
                     //   if(NewRequestPage.listCreatingrequests.isNotEmpty){
                     //     Helper.logger.i('2');
                     //   }
-                      
+
                     // }else{
                     //   final response = await _offlineStorage.getCreatingRequests();
                     //   log("informacion guardada en storage: ${jsonEncode(response)}");
@@ -614,11 +659,8 @@ class _RequestDataFormState extends State<RequestDataForm>
                     //   // Helper.logger.i('3');
                     //   // NewRequestPage.listCreatingrequests.insert(0, request);
                     //   // _offlineStorage.saveCreatingRequests(value: NewRequestPage.listCreatingrequests);
-                      
+
                     // }
-
-
-
 
                     // final response = await OfflineStorage().getInspectionFinishedOffline();
                     // if(response != null){
@@ -660,7 +702,6 @@ class _RequestDataFormState extends State<RequestDataForm>
                     //     //correo2: request.dataSolicitud!.correo2
                     //   );
 
-                      
                     //   Helper.logger.w('response: ${jsonEncode(response)}');
                     //   Helper.logger.w('request: ${jsonEncode(request)}');
                     // }
@@ -883,6 +924,7 @@ class _RequestDataFormState extends State<RequestDataForm>
         options: brokersList,
         modalFilterAuto: true,
         modalFilter: true,
+        
         // useConfirm: true,
         modalType: S2ModalType.popupDialog,
         optionSelected: (v) {
@@ -987,7 +1029,13 @@ class _RequestDataFormState extends State<RequestDataForm>
           if (selectedProcessTypeValue == "50") {
             Helper.logger.e('Entro validacion 50');
             //? Solo si el proceso es con emision traemos productos
-            !fp.offline ?       _getProducts() : Helper.snackBar(context: context, message: 'No puedes continuar con este proceso porque estas en modo offline.', colorSnackBar: Colors.red);
+            !fp.offline
+                ? _getProducts()
+                : Helper.snackBar(
+                    context: context,
+                    message:
+                        'No puedes continuar con este proceso porque estas en modo offline.',
+                    colorSnackBar: Colors.red);
           }
           Helper.logger.e('No entro');
           if (deductiblesList.isNotEmpty) {
@@ -1035,7 +1083,6 @@ class _RequestDataFormState extends State<RequestDataForm>
                         }))
                 .toList();
             // }
-
           } else {
             _cleanBranchSelect();
           }
@@ -1050,7 +1097,8 @@ class _RequestDataFormState extends State<RequestDataForm>
     _cleanExecutiveSelect();
     switch (amBroker) {
       case true:
-        final response = await NewRequestService().getExecutives(context, idBroker!, selectedAgencyTypeValue);
+        final response = await NewRequestService()
+            .getExecutives(context, idBroker!, selectedAgencyTypeValue);
         if (!response.error) {
           exectutivesList = response.data!
               .map((e) => S2Choice(
@@ -1066,8 +1114,9 @@ class _RequestDataFormState extends State<RequestDataForm>
         break;
       case false:
         if (brokerSelected) {
-          if(!fp.offline){
-            final response = await NewRequestService().getExecutives(context, selectedBrokerValue, selectedAgencyTypeValue);
+          if (!fp.offline) {
+            final response = await NewRequestService().getExecutives(
+                context, selectedBrokerValue, selectedAgencyTypeValue);
             if (!response.error) {
               exectutivesList = response.data!
                   .map((e) => S2Choice(
@@ -1086,23 +1135,27 @@ class _RequestDataFormState extends State<RequestDataForm>
               _cleanAgency();
               _cleanExecutiveSelect();
             }
-          }else{
+          } else {
             // _cleanAgency();
             // _cleanExecutiveSelect();
             Helper.logger.w('valida aqui la conexion a internedddt'); //VALIDARR
             final response = await OfflineStorage().getCatalogueExecutives();
-            if(response != null){
-             List<Executive> listExecutives = response.data.map((item) => Executive.fromJson(item)).toList();
-             //listExecutives.where((e) => e.codEjecutivo == int.parse(selectedAgencyTypeValue)).toList();
-             exectutivesList = listExecutives.map((e) => S2Choice(
-                        value: e.codEjecutivo.toString(),
-                        title: e.nombre,
-                        meta: Ejecutivo(
-                            codEjecutivo: e.codEjecutivo.toString(),
-                            mail: e.mail,
-                            nombre: e.nombre,
-                            usuario: e.usuario))).toList();
-            }else{
+            if (response != null) {
+              List<Executive> listExecutives = response.data
+                  .map((item) => Executive.fromJson(item))
+                  .toList();
+              //listExecutives.where((e) => e.codEjecutivo == int.parse(selectedAgencyTypeValue)).toList();
+              exectutivesList = listExecutives
+                  .map((e) => S2Choice(
+                      value: e.codEjecutivo.toString(),
+                      title: e.nombre,
+                      meta: Ejecutivo(
+                          codEjecutivo: e.codEjecutivo.toString(),
+                          mail: e.mail,
+                          nombre: e.nombre,
+                          usuario: e.usuario)))
+                  .toList();
+            } else {
               _cleanAgency();
               _cleanExecutiveSelect();
             }
@@ -1436,7 +1489,8 @@ class _RequestDataFormState extends State<RequestDataForm>
   }
 
   _verifyVehiclePlate() async {
-    final response = await RequestReviewService().getVehicleClientData(context, vehiclePlateController.text);
+    final response = await RequestReviewService()
+        .getVehicleClientData(context, vehiclePlateController.text);
     setState(() {
       existErrorVehiclePlate = response.error;
 
@@ -1517,14 +1571,15 @@ class _RequestDataFormState extends State<RequestDataForm>
         Focus(
           onFocusChange: (hasFocus) {
             if (!hasFocus) {
-              if(!fp.offline){
-                if (vehiclePlateController.text.trim().isNotEmpty && tmpPlateCons != vehiclePlateController.text.trim()) {
+              if (!fp.offline) {
+                if (vehiclePlateController.text.trim().isNotEmpty &&
+                    tmpPlateCons != vehiclePlateController.text.trim()) {
                   tmpPlateCons = vehiclePlateController.text.trim();
                   _verifyVehiclePlate();
                 }
-              }else{
-                 existErrorVehiclePlate = false;
-                 setState(() { });
+              } else {
+                existErrorVehiclePlate = false;
+                setState(() {});
               }
             }
           },
@@ -1541,24 +1596,26 @@ class _RequestDataFormState extends State<RequestDataForm>
             onEditingComplete: () {
               _checkIfFieldsAreCompleted();
             },
-            suffixIcon: !fp.offline ? (vehiclePlateController.text.isNotEmpty)
-                ? TextButton(
-                    style: ButtonStyle(
-                        shape:
-                            WidgetStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ))),
-                    onPressed: () {
-                      Helper.dismissKeyboard(context);
-                      _verifyVehiclePlate();
-                    },
-                    child: const Icon(
-                      Icons.search_rounded,
-                      color: Colors.grey,
-                      size: 30.0,
-                    ),
-                  ) : null
+            suffixIcon: !fp.offline
+                ? (vehiclePlateController.text.isNotEmpty)
+                    ? TextButton(
+                        style: ButtonStyle(
+                            shape:
+                                WidgetStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ))),
+                        onPressed: () {
+                          Helper.dismissKeyboard(context);
+                          _verifyVehiclePlate();
+                        },
+                        child: const Icon(
+                          Icons.search_rounded,
+                          color: Colors.grey,
+                          size: 30.0,
+                        ),
+                      )
+                    : null
                 : null,
             ontap: () {
               if (sumAssuredController.text.isNotEmpty &&

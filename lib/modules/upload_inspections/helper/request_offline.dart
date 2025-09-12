@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:sweaden_old_new_version/envs/app_config.dart';
+import 'package:sweaden_old_new_version/modules/review_request/pages/request_review.dart';
 import 'package:sweaden_old_new_version/modules/review_request/services/request_review_services.dart';
 import 'package:sweaden_old_new_version/modules/review_request/widgets/media%20form/services/media_service.dart';
 import 'package:sweaden_old_new_version/modules/upload_inspections/widgets/text_rich_widget.dart';
@@ -62,8 +63,12 @@ class HelperRequestOffline {
             idSoliciutd: paramsLoadMedia.idSolicitudTemp.toString());
         Helper.logger.w('identification: $identification');
         for (var item in dataMedia) {
-          log("${item.idArchiveType} - ${item.path} - ${item.status}");
+          // log("${item.idArchiveType} - ${item.path} - ${item.status}");
           if (item.status != 'UPLOADED' && item.status != 'NO_MEDIA') {
+            var image = Uint8List(0);
+            if (item.type == 'image') {
+              image = Uint8List.fromList(await File(item.path!).readAsBytes());
+            }
             final response = await MediaService().uploadMedia(
               context: context,
               idRequest: paramsLoadMedia.idRequestReal,
@@ -72,9 +77,7 @@ class HelperRequestOffline {
               mediaType: item.type == 'image'
                   ? MediaType('image', 'jpg')
                   : MediaType('video', 'mp4'),
-              mediaPhoto: (item.type == 'image')
-                  ? Uint8List.fromList(item.data!)
-                  : null,
+              mediaPhoto: (item.type == 'image') ? image : null,
               mediaVideo: (item.type == 'video') ? File(item.path!) : null,
               showAlertError: false,
               showLoading: true,
@@ -107,7 +110,7 @@ class HelperRequestOffline {
         if (fp != null) {
           fp.setLoadingInspection(false);
         }
-        return false;
+        return true;
       }
     } catch (e) {
       Helper.logger.e('error media service: $e');
@@ -124,9 +127,10 @@ class HelperRequestOffline {
     final continueInspection = await InspectionStorage().getDataInspection(
         paramsLoadRequest.idSolicitudTemp.toString()); // ID TEMPPORAL
 
+    log("entra a cargar la inspeccion, existe: ${continueInspection != null}");
     if (continueInspection != null) {
-      log("entra a cargar la inspeccion");
-      log(jsonEncode(continueInspection));
+    
+      // log(jsonEncode(continueInspection));
       final SaveInspection saveInspection = await getDataSave(
           continueInspection: continueInspection,
           inspectionParams: paramsLoadRequest.paramsRequest);
@@ -142,11 +146,12 @@ class HelperRequestOffline {
           idRequest: paramsLoadRequest.idSolicitudTemp /* ID TEMPPORAL*/,
           showLoading: paramsLoadRequest.showLoading,
           showAlertError: false);
-      Helper.logger.e('response: ${jsonEncode(response)}');
+      // Helper.logger.e('response: ${jsonEncode(response)}');
       return response;
       //return response.error;
     } else {
-      log("no hay ");
+     
+      log("No existe ");
       return GeneralResponse(message: 'Ocurrio un error', error: true);
     }
   }

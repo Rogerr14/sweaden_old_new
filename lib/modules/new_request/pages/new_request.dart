@@ -63,7 +63,7 @@ class _NewRequestPageState extends State<NewRequestPage> {
     if(!fp.offline){
       if(NewRequestPage.inspectionData == null){
         final response = await NewRequestService().getInspectionData(context);
-        log('response: ${response.data}');
+        // log('response: ${response.data}');
         if(response.data!=null){
           NewRequestPage.inspectionData = response.data;
           setState(() {});

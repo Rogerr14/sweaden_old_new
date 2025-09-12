@@ -69,7 +69,7 @@ class ActivesDataFormState extends State<ActivesDataFormWidget>
     inspectionData.secondaryIncomes != null
         ? isValidSecondaryIncomes = true
         : null;
-    activesController.text = inspectionData.actives ?? '0';
+    activesController.text = inspectionData.actives != null ? inspectionData.actives! : '0';
     inspectionData.actives != null ? isValidActives = true : null;
     pasivesController.text = inspectionData.pasives ?? '0';
     inspectionData.pasives != null ? isValidPasives = true : null;
